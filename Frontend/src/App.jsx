@@ -6,6 +6,8 @@ import Home from './pages/Home'
 import Teams from './pages/Teams'
 import About from './pages/About'
 import NotFound from './pages/NotFound'
+import Profile from './pages/Profile'
+
 
 export default function App() {
   return (
@@ -18,7 +20,10 @@ export default function App() {
             <Route path="/teams" element={<Teams />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/profile" element={<Profile />} />
+
           </Routes>
+           
         </main>
         <Footer />
       </div>
