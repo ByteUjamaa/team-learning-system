@@ -1,22 +1,21 @@
-import React from "react";
+import React from 'react'
+import TeamCard from '../components/MemberCard'
 
-export default function Members() {
-  const members = [
-    { id: 1, role: "Frontend Developer" },
-    { id: 2, role: "Backend Developer" },
-    { id: 3, role: "Frontend Developer" },
-    { id: 4, role: "Backend Developer" },
-    { id: 5, role: "Frontend Developer" },
-  ];
+const demo = [
+  { id: 1, name: 'Frontend Learners', description: 'Practice React and UI patterns', members: 6 },
+  { id: 2, name: 'Backend Builders', description: 'Django, APIs and databases', members: 4 },
+  { id: 3, name: 'Data Enthusiasts', description: 'Data science experiments', members: 5 },
+  { id: 4, name: 'DevOps Crew', description: 'CI/CD, infra and monitoring', members: 3 }
+]
 
+export default function Teams(){
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Team Members</h1>
-      {members.map((member) => (
-        <div key={member.id} style={{ background: "#f1f3f6", padding: "1rem", marginBottom: "0.5rem", borderRadius: "8px" }}>
-          <p>Role: {member.role}</p>
-        </div>
-      ))}
-    </div>
-  );
+    <section>
+      <h1>Teams</h1>
+      <p style={{color:'#6b7280'}}>Browse or join a team to start collaborating.</p>
+      <div className="team-grid" style={{marginTop:12}}>
+        {demo.map(t => <TeamCard key={t.id} team={t} />)}
+      </div>
+    </section>
+  )
 }
