@@ -7,10 +7,16 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Node / build
 node_modules
 dist
 dist-ssr
 *.local
+
+# Python / Django
+__pycache__/
+*.pyc
+Backend/db.sqlite3
 
 # Editor directories and files
 .vscode/*
