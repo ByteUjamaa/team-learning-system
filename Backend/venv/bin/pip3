@@ -1,4 +1,4 @@
-#!/Users/christinakimario/team-learning-system/Backend/venv/bin/python3.13
+#!/home/kiwoly/Team_Project/team-learning-system/Backend/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
