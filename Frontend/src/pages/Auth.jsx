@@ -113,7 +113,7 @@ export default function AuthForm() {
           {/* Username (Register Only) */}
           {!isLogin && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {/* <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Username
               </label>
               <input
@@ -123,7 +123,7 @@ export default function AuthForm() {
                 className={`w-full px-4 py-3 rounded-lg border ${
                   errors.username ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                 } focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white`}
-              />
+              /> */}
               {errors.username && (
                 <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.username.message}</p>
               )}
@@ -206,7 +206,7 @@ export default function AuthForm() {
             ) : isLogin ? (
               'Log In'
             ) : (
-              'Register'
+              ''
             )}
           </button>
         </form>
@@ -222,7 +222,7 @@ export default function AuthForm() {
             }}
             className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
           >
-            {isLogin ? "Don't have an account? Register" : 'Already have an account? Log in'}
+            {isLogin ? "" : 'Already have an account? Log in'}
           </button>
         </div>
       </div>

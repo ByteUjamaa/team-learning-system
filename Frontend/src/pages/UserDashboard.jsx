@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function UserDashboard() {
-  const { user: currentUser } = useAuth(); // renamed to avoid confusion
+  const { user: currentUser } = useAuth(); 
 
   const [announcements, setAnnouncements] = useState([]);
   const [members, setMembers] = useState([]);
