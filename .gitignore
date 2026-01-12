@@ -16,6 +16,8 @@ dist-ssr
 # Python / Django
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 Backend/db.sqlite3
 
 # Editor directories and files
@@ -28,3 +30,10 @@ Backend/db.sqlite3
 *.njsproj
 *.sln
 *.sw?
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db

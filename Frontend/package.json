@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
-    "@tailwindcss/vite": "^4.1.17",
     "axios": "^1.13.2",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
@@ -21,6 +20,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.1.18",
     "@vitejs/plugin-react": "^5.1.0",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
