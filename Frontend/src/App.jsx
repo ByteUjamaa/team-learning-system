@@ -6,14 +6,18 @@ import AuthForm from "./pages/Auth";
 import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
-import Navbar from "./components/Navbar";
 import Announcements from "./pages/Announcement";
+
+// NEW: Import ThemeProvider and Layout
+import { ThemeProvider } from "./context/ThemeContext";
+import Layout from "./components/layout/Layout";
 
 const RequireAuth = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
   if (loading)
     return (
       <div className="flex justify-center p-20">
+        {/* Use your original spinner */}
         <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-600"></div>
       </div>
     );
@@ -25,27 +29,40 @@ const RequireAuth = ({ children, allowedRoles }) => {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
-    </AuthProvider>
+    // NEW: Wrap with ThemeProvider
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
 const AppContent = () => {
   const { user } = useAuth();
 
+  // NEW: Wrapper component for layout
+  const AppLayout = ({ children }) => (
+    <Layout>
+      {children}
+    </Layout>
+  );
+
   return (
     <>
-      {user && <Navbar />}
       <Routes>
         <Route path="/auth" element={<AuthForm />} />
+        
+        {/* NEW: Wrapped routes with Layout */}
         <Route
           path="/dashboard"
           element={
             <RequireAuth>
-              <UserDashboard />
+              <AppLayout>
+                <UserDashboard />
+              </AppLayout>
             </RequireAuth>
           }
         />
@@ -53,7 +70,9 @@ const AppContent = () => {
           path="/admin"
           element={
             <RequireAuth allowedRoles={["admin"]}>
-              <AdminDashboard />
+              <AppLayout>
+                <AdminDashboard />
+              </AppLayout>
             </RequireAuth>
           }
         />
@@ -61,16 +80,19 @@ const AppContent = () => {
           path="/profile"
           element={
             <RequireAuth>
-              <Profile />
+              <AppLayout>
+                <Profile />
+              </AppLayout>
             </RequireAuth>
           }
         />
-
         <Route
           path="/announcements"
           element={
             <RequireAuth>
-              <Announcements />
+              <AppLayout>
+                <Announcements />
+              </AppLayout>
             </RequireAuth>
           }
         />
@@ -78,7 +100,9 @@ const AppContent = () => {
           path="/profile/:id?"
           element={
             <RequireAuth>
-              <Profile />
+              <AppLayout>
+                <Profile />
+              </AppLayout>
             </RequireAuth>
           }
         />
