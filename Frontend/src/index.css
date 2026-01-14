@@ -1,19 +1,2 @@
-:root {
-  --bg: #f7f8fb;
-  --card: #ffffff;
-  --muted: #6b7280;
-  --accent: #2563eb;
-}
+@import "tailwindcss";
 
-* { box-sizing: border-box; }
-html, body, #root { height: 100%; margin: 0; }
-body { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background: var(--bg); color: #111827; }
-.app-root { display:flex; flex-direction:column; min-height:100vh; }
-.header { background: white; padding: 16px 24px; box-shadow: 0 1px 0 rgba(0,0,0,0.04); }
-.header .nav { display:flex; gap:12px; align-items:center; }
-.main-content { flex:1; padding: 24px; max-width:1100px; margin:0 auto; }
-.footer { padding: 16px 24px; text-align:center; color:var(--muted); font-size:14px; }
-.card { background: var(--card); padding:16px; border-radius:8px; box-shadow: 0 1px 2px rgba(16,24,40,0.04); }
-.team-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; }
-.team-card { padding: 12px; border-radius:8px; background:var(--card); }
-.link { color:var(--accent); text-decoration:none; }
