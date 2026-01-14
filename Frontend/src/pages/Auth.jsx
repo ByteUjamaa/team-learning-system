@@ -1,25 +1,9 @@
-// src/components/AuthForm.jsx
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/services';
-
-// Zod Schema - different for login vs register
-const loginSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-const registerSchema = z.object({
-  username: z.string().min(3, 'Username must be at least 3 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
+import { FiLock, FiUser, FiMail } from 'react-icons/fi';
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
@@ -28,14 +12,7 @@ export default function AuthForm() {
   const { login: authLogin } = useAuth();
   const navigate = useNavigate();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm({
-    resolver: zodResolver(isLogin ? loginSchema : registerSchema),
-  });
+  const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
   const onSubmit = async (data) => {
     setServerError('');
@@ -43,186 +20,134 @@ export default function AuthForm() {
 
     try {
       if (isLogin) {
-        // LOGIN
         const res = await api.post('/api/v1/login/', {
           username: data.username,
           password: data.password,
         });
-
-        // JWT response contains access and refresh tokens
+        
         const { access, refresh } = res.data;
-
-        // Decode the token to get user info including role
-        const decoded = jwtDecode(access);
         const user = {
-          username: decoded.username,
-          email: decoded.email,
-          role: decoded.role || 'user',
+          username: data.username,
+          role: 'user' // You should get this from your API response
         };
-
-        // Call context login to store tokens + user
+        
         authLogin(access, refresh, user);
-
-        // Navigate based on role
-        navigate(user.role === 'admin' ? '/admin' : '/dashboard');
+        navigate('/dashboard');
       } else {
-        // REGISTER
         await api.post('/api/v1/register/', {
           username: data.username,
           email: data.email,
           password: data.password,
         });
-
         alert('Registration successful! Please log in.');
         setIsLogin(true);
         reset();
       }
     } catch (err) {
-      const msg =
-        err.response?.data?.detail ||
-        err.response?.data?.email?.[0] ||
-        err.response?.data?.username?.[0] ||
-        err.response?.data?.non_field_errors?.[0] ||
-        'Invalid username or password';
-      setServerError(msg);
+      setServerError(err.response?.data?.detail || 'Authentication failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4">
-      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
-        {/* Logo / Title */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 p-4">
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-2xl shadow-elevated border border-gray-200 dark:border-gray-700 p-8">
+        {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">TLMS</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            {isLogin ? 'Welcome back!' : 'Create your account'}
+          <div className="h-16 w-16 mx-auto rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center mb-4">
+            <span className="text-white font-bold text-2xl">TL</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            {isLogin ? 'Welcome Back' : 'Create Account'}
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            {isLogin ? 'Sign in to continue' : 'Join our learning community'}
           </p>
         </div>
 
-        {/* Server Error */}
+        {/* Error Message */}
         {serverError && (
-          <div className="mb-4 p-3 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded-lg text-sm">
+          <div className="mb-6 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg text-sm border border-red-200 dark:border-red-800">
             {serverError}
           </div>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* Username (Register Only) */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {!isLogin && (
-            <div>
-              {/* <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Username
-              </label>
-              <input
-                {...register('username')}
-                type="text"
-                placeholder="christinaJustine"
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  errors.username ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                } focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white`}
-              /> */}
-              {errors.username && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.username.message}</p>
-              )}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+              <div className="relative">
+                <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <input
+                  {...register('email', { required: 'Email is required' })}
+                  type="email"
+                  placeholder="your@email.com"
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
             </div>
           )}
 
-          {/* Username (Login) or Email (Register) */}
-          {isLogin ? (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Username
-              </label>
-              <input
-                {...register('username')}
-                type="text"
-                placeholder="Enter your username"
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  errors.username ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                } focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white`}
-              />
-              {errors.username && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.username.message}</p>
-              )}
-            </div>
-          ) : (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Email
-              </label>
-              <input
-                {...register('email')}
-                type="email"
-                placeholder="your.email@example.com"
-                className={`w-full px-4 py-3 rounded-lg border ${
-                  errors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                } focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white`}
-              />
-              {errors.email && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.email.message}</p>
-              )}
-            </div>
-          )}
-
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Password
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {isLogin ? 'Username' : 'Username'}
             </label>
-            <input
-              {...register('password')}
-              type="password"
-              placeholder="••••••••"
-              className={`w-full px-4 py-3 rounded-lg border ${
-                errors.password ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-              } focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white`}
-            />
-            {errors.password && (
-              <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.password.message}</p>
-            )}
+            <div className="relative">
+              <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                {...register('username', { required: 'Username is required' })}
+                type="text"
+                placeholder={isLogin ? "Enter username" : "Choose username"}
+                className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+            </div>
+            {errors.username && <p className="text-sm text-red-600">{errors.username.message}</p>}
           </div>
 
-          {/* Submit Button */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+            <div className="relative">
+              <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                {...register('password', { 
+                  required: 'Password is required',
+                  minLength: { value: 6, message: 'Minimum 6 characters' }
+                })}
+                type="password"
+                placeholder="••••••••"
+                className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+            </div>
+            {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
+          </div>
+
           <button
             type="submit"
             disabled={loading}
-            className={`w-full py-3 rounded-lg font-semibold text-white transition ${
-              loading
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800'
+            className={`w-full py-3 rounded-lg font-medium transition-colors ${
+              loading 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-primary-600 hover:bg-primary-700 text-white'
             }`}
           >
-            {loading ? (
-              <span className="flex items-center justify-center">
-                <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                </svg>
-                Processing...
-              </span>
-            ) : isLogin ? (
-              'Log In'
-            ) : (
-              ''
-            )}
+            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
           </button>
         </form>
 
-        {/* Toggle Login/Register */}
+        {/* Toggle */}
         <div className="mt-6 text-center">
           <button
-            type="button"
             onClick={() => {
               setIsLogin(!isLogin);
               reset();
               setServerError('');
             }}
-            className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
+            className="text-primary-600 dark:text-primary-400 hover:underline text-sm"
           >
-            {isLogin ? "" : 'Already have an account? Log in'}
+            {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
           </button>
         </div>
       </div>
