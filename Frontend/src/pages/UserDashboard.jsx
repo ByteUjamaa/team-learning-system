@@ -3,10 +3,12 @@ import api from '../services/services';
 import AnnouncementCard from '../components/AnnouncementCard';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { FiUsers, FiBell, FiCalendar, FiChevronRight } from 'react-icons/fi';
 
 export default function UserDashboard() {
   const { user: currentUser } = useAuth(); 
+  const { theme } = useTheme();
   const [announcements, setAnnouncements] = useState([]);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +43,9 @@ export default function UserDashboard() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-primary-500"></div>
+        <div className={`animate-spin rounded-full h-12 w-12 border-t-4 ${
+          theme === 'dark' ? 'border-blue-400' : 'border-blue-500'
+        }`}></div>
       </div>
     );
   }
@@ -49,127 +53,187 @@ export default function UserDashboard() {
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-6 text-white">
-        <div className="flex items-center justify-between">
+      <div className={`rounded-lg p-6 ${
+        theme === 'dark'
+          ? 'bg-gray-800 border border-gray-700'
+          : 'bg-blue-50 border border-blue-200'
+      }`}>
+        <div className={`flex items-center justify-between ${
+          theme === 'dark' ? 'text-white' : 'text-gray-900'
+        }`}>
           <div>
-            <h1 className="text-3xl font-bold mb-2">Welcome back, {userName}</h1>
-            <p className="text-primary-100 opacity-90">Here's what's happening today</p>
+            <h1 className="text-2xl font-bold mb-2">Welcome back, {userName}</h1>
+            <p className={theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}>
+              Here's what's happening today
+            </p>
           </div>
-          <div className="hidden md:flex items-center gap-2">
+          <div className={`flex items-center gap-2 ${
+            theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+          }`}>
             <FiCalendar className="h-5 w-5" />
-            <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+            <span className="text-sm">{new Date().toLocaleDateString()}</span>
           </div>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-card border border-gray-200 dark:border-gray-700">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className={`rounded-lg p-4 ${
+          theme === 'dark' ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+        }`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">Announcements</p>
-              <p className="text-2xl font-bold mt-2">{announcements.length}</p>
+              <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                Announcements
+              </p>
+              <p className={`text-xl font-semibold mt-1 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
+                {announcements.length}
+              </p>
             </div>
-            <div className="h-12 w-12 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-              <FiBell className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+            <div className={`h-10 w-10 rounded flex items-center justify-center ${
+              theme === 'dark' ? 'bg-blue-900/30' : 'bg-blue-100'
+            }`}>
+              <FiBell className={`h-5 w-5 ${
+                theme === 'dark' ? 'text-blue-400' : 'text-blue-600'
+              }`} />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-card border border-gray-200 dark:border-gray-700">
+        <div className={`rounded-lg p-4 ${
+          theme === 'dark' ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+        }`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">Team Members</p>
-              <p className="text-2xl font-bold mt-2">{members.length}</p>
+              <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                Team Members
+              </p>
+              <p className={`text-xl font-semibold mt-1 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
+                {members.length}
+              </p>
             </div>
-            <div className="h-12 w-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <FiUsers className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            <div className={`h-10 w-10 rounded flex items-center justify-center ${
+              theme === 'dark' ? 'bg-purple-900/30' : 'bg-purple-100'
+            }`}>
+              <FiUsers className={`h-5 w-5 ${
+                theme === 'dark' ? 'text-purple-400' : 'text-purple-600'
+              }`} />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-card border border-gray-200 dark:border-gray-700">
+        <div className={`rounded-lg p-4 ${
+          theme === 'dark' ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+        }`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">Active Now</p>
-              <p className="text-2xl font-bold mt-2">
+              <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                Active Now
+              </p>
+              <p className={`text-xl font-semibold mt-1 ${
+                theme === 'dark' ? 'text-white' : 'text-gray-900'
+              }`}>
                 {Math.min(members.length, Math.floor(Math.random() * 10) + 1)}
               </p>
             </div>
-            <div className="h-4 w-4 rounded-full bg-green-500 animate-pulse"></div>
+            <div className="h-3 w-3 rounded-full bg-green-500"></div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Announcements */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-card border border-gray-200 dark:border-gray-700 p-6">
+        <div className={`rounded-lg p-6 ${
+          theme === 'dark' ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+        }`}>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Recent Announcements</h2>
+            <h2 className={`text-lg font-semibold ${
+              theme === 'dark' ? 'text-white' : 'text-gray-900'
+            }`}>
+              Recent Announcements
+            </h2>
             {announcements.length > 0 && (
-              <Link to="/announcements" className="text-primary-600 dark:text-primary-400 hover:underline text-sm font-medium flex items-center gap-1">
+              <Link to="/announcements" className={`text-sm font-medium flex items-center gap-1 ${
+                theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'
+              }`}>
                 See all <FiChevronRight className="h-4 w-4" />
               </Link>
             )}
           </div>
 
           {announcements.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No announcements yet</p>
-            </div>
+            <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}>
+              No announcements yet
+            </p>
           ) : (
             <div className="space-y-4">
               {announcements.slice(0, 3).map(ann => (
-                <AnnouncementCard key={ann.id} ann={ann} preview />
+                <AnnouncementCard key={ann.id} ann={ann} preview theme={theme} />
               ))}
             </div>
           )}
         </div>
 
         {/* Team Members */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-card border border-gray-200 dark:border-gray-700 p-6">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Team Members</h2>
+        <div className={`rounded-lg p-6 ${
+          theme === 'dark' ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+        }`}>
+          <h2 className={`text-lg font-semibold mb-6 ${
+            theme === 'dark' ? 'text-white' : 'text-gray-900'
+          }`}>
+            Team Members
+          </h2>
           
           {members.length === 0 ? (
-            <p className="text-gray-500">No team members found</p>
+            <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}>
+              No team members found
+            </p>
           ) : (
-            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+            <div className="space-y-3 max-h-[400px] overflow-y-auto">
               {members.slice(0, 6).map(u => {
                 const displayName = u.full_name || 
                   `${u.first_name || ''} ${u.last_name || ''}`.trim() || 
                   u.username || 'Unknown';
-                const isCurrentUser = u.id === currentUser?.id;
 
                 return (
                   <Link 
                     key={u.id} 
                     to={`/profile/${u.id}`}
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className={`flex items-center gap-3 p-3 rounded-lg ${
+                      theme === 'dark' 
+                        ? 'hover:bg-gray-700' 
+                        : 'hover:bg-gray-50'
+                    }`}
                   >
-                    <div className="relative">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-semibold">
-                        {displayName.charAt(0).toUpperCase()}
-                      </div>
-                      {isCurrentUser && (
-                        <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
-                      )}
+                    <div className={`h-8 w-8 rounded-full flex items-center justify-center font-semibold ${
+                      theme === 'dark'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      {displayName.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900 dark:text-white">{displayName}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{u.email}</p>
+                      <p className={`font-medium ${
+                        theme === 'dark' ? 'text-white' : 'text-gray-900'
+                      }`}>
+                        {displayName}
+                      </p>
+                      <p className={`text-sm ${
+                        theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
+                        {u.email}
+                      </p>
                     </div>
-                    <FiChevronRight className="h-4 w-4 text-gray-400" />
+                    <FiChevronRight className={`h-4 w-4 ${
+                      theme === 'dark' ? 'text-gray-500' : 'text-gray-400'
+                    }`} />
                   </Link>
                 );
               })}
-            </div>
-          )}
-          
-          {members.length > 6 && (
-            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-              <Link to="/teams" className="text-primary-600 dark:text-primary-400 hover:underline font-medium">
-                View all members ({members.length})
-              </Link>
             </div>
           )}
         </div>
