@@ -1,4 +1,4 @@
-// src/App.jsx
+// src/App.jsx - CORRECT VERSION
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -8,8 +8,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
 import Announcements from "./pages/Announcement";
 
-// NEW: Import ThemeProvider and Layout
-import { ThemeProvider } from "./context/ThemeContext";
+// IMPORT THEME PROVIDER ONCE
+import { ThemeProvider } from "./context/ThemeContext"; // Only once
 import Layout from "./components/layout/Layout";
 
 const RequireAuth = ({ children, allowedRoles }) => {
@@ -17,7 +17,6 @@ const RequireAuth = ({ children, allowedRoles }) => {
   if (loading)
     return (
       <div className="flex justify-center p-20">
-        {/* Use your original spinner */}
         <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-600"></div>
       </div>
     );
@@ -29,7 +28,7 @@ const RequireAuth = ({ children, allowedRoles }) => {
 
 function App() {
   return (
-    // NEW: Wrap with ThemeProvider
+    // ThemeProvider wraps everything
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
@@ -43,7 +42,7 @@ function App() {
 const AppContent = () => {
   const { user } = useAuth();
 
-  // NEW: Wrapper component for layout
+  // Wrapper component for layout
   const AppLayout = ({ children }) => (
     <Layout>
       {children}
@@ -55,7 +54,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/auth" element={<AuthForm />} />
         
-        {/* NEW: Wrapped routes with Layout */}
+        {/* Wrapped routes with Layout */}
         <Route
           path="/dashboard"
           element={
