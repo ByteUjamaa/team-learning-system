@@ -6,3 +6,6 @@ dist/
 
 
 Backend/media/
+Backend/media/
+__pycache__/
+*.pyc
