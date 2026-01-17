@@ -182,19 +182,20 @@ export default function AuthForm() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full py-3 rounded-lg font-medium transition-all duration-300 ${
-              loading 
-                ? 'opacity-50 cursor-not-allowed' 
-                : theme === 'dark'
-                  ? 'bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 text-white'
-                  : 'bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white'
-            }`}
+        <button
+               type="submit"
+              disabled={loading}
+             className={`w-full py-3 rounded-lg font-medium transition-all duration-300 ${
+             loading
+             ? 'opacity-50 cursor-not-allowed'
+             : theme === 'dark'
+             ? 'bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-700 hover:to-secondary-700 text-white'
+            : 'bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white'
+         }`}
           >
-            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
-          </button>
+           {loading ? 'Loading...' : 'Submit'}
+      </button>
+
         </form>
 
         {/* Toggle */}
