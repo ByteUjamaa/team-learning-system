@@ -2,17 +2,30 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/services";
-import { FiUser, FiMail, FiBook, FiCalendar, FiEdit2, FiSave, FiX } from 'react-icons/fi';
+import ProfileHeader from "../components/Profile/ProfileHeader";
+import ProfileInfo from "../components/Profile/ProfileInfo";
+import ProfileActions from "../components/Profile/ProfileActions";
+import InfoCards from "../components/Profile/InfoCards";
 
 const Profile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
-  const [profile, setProfile] = useState({ first_name: "", last_name: "", email: "", programme: "", year_of_study: "" });
+  
+  const [profile, setProfile] = useState({ 
+    first_name: "", 
+    last_name: "", 
+    email: "", 
+    programme: "", 
+    year_of_study: "" 
+  });
+  
+  const [profileImage, setProfileImage] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
-  const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const isOwnProfile = !id || id === currentUser?.id;
 
   useEffect(() => {
     fetchProfile();
@@ -24,7 +37,7 @@ const Profile = () => {
       const API_URL = id ? `/api/v1/profiles/${id}/` : "/api/v1/profiles/me/";
       const response = await api.get(API_URL);
       const data = response.data;
-
+      
       setProfile({
         first_name: data.first_name || "",
         last_name: data.last_name || "",
@@ -32,33 +45,68 @@ const Profile = () => {
         programme: data.programme || "",
         year_of_study: data.year_of_study || "",
       });
-      setIsOwnProfile(!id || Number(id) === currentUser?.id);
+      
+      if (data.profile_picture) {
+        setProfileImage(data.profile_picture);
+      }
     } catch (error) {
-      setMessage("Could not load profile");
+      console.error("Error fetching profile:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleSave = async () => {
-    setLoading(true);
-    setMessage("");
+    setSaving(true);
     try {
-      await api.put("/api/v1/profiles/me/", profile);
-      setMessage("Profile updated successfully");
+      const textData = {
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        email: profile.email,
+        programme: profile.programme,
+        year_of_study: profile.year_of_study,
+      };
+      
+      await api.put("/api/v1/profiles/me/", textData, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      setMessage("Profile updated successfully!");
       setIsEditing(false);
       setTimeout(() => setMessage(""), 3000);
     } catch (error) {
       setMessage("Failed to update profile");
     } finally {
-      setLoading(false);
+      setSaving(false);
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('profile_picture', file);
+
+    try {
+      const response = await api.put("/api/v1/profiles/me/", formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      
+      if (response.data.profile_picture) {
+        setProfileImage(response.data.profile_picture);
+      }
+      setMessage("Profile picture updated!");
+      setTimeout(() => setMessage(""), 3000);
+    } catch (error) {
+      setMessage("Failed to upload image");
     }
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-primary-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-blue-500"></div>
       </div>
     );
   }
@@ -66,147 +114,96 @@ const Profile = () => {
   const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || "User";
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="text-gray-600 dark:text-gray-400 hover:text-primary-600">
-            ← Back
-          </button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              {isOwnProfile ? "My Profile" : `${fullName}'s Profile`}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              {isOwnProfile ? "Manage your personal information" : "View team member details"}
-            </p>
+    <div className="min-h-screen bg-gray-50">
+      <ProfileHeader 
+        isOwnProfile={isOwnProfile}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+        navigate={navigate}
+        fullName={fullName}
+      />
+
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Message */}
+        {message && (
+          <div className={`mb-6 p-4 rounded-lg ${message.includes("success") ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
+            {message}
           </div>
-        </div>
-        
-        {isOwnProfile && !isEditing && (
-          <button
-            onClick={() => setIsEditing(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-medium"
-          >
-            <FiEdit2 className="h-4 w-4" />
-            Edit Profile
-          </button>
         )}
-      </div>
 
-      {/* Message */}
-      {message && (
-        <div className={`p-4 rounded-lg ${
-          message.includes("success") 
-            ? "bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-300" 
-            : "bg-red-50 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-300"
-        }`}>
-          {message}
-        </div>
-      )}
-
-      {/* Profile Card */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-card border border-gray-200 dark:border-gray-700 p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Avatar */}
-          <div className="lg:col-span-1 flex flex-col items-center">
-            <div className="h-40 w-40 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white text-5xl font-bold mb-4">
-              {fullName.charAt(0).toUpperCase()}
+        {/* Profile Card */}
+        <div className="bg-white rounded-xl shadow border border-gray-200">
+          {/* Header with Image */}
+          <div className="relative h-40 bg-gradient-to-r from-blue-500 to-blue-600">
+            <div className="absolute -bottom-12 left-6">
+              <div className="relative">
+                {profileImage ? (
+                  <img
+                    src={profileImage}
+                    alt={fullName}
+                    className="h-24 w-24 rounded-full border-4 border-white shadow-lg object-cover"
+                  />
+                ) : (
+                  <div className="h-24 w-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center border-4 border-white shadow-lg">
+                    <span className="text-white text-2xl font-bold">
+                      {fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                
+                {isEditing && (
+                  <label className="absolute bottom-0 right-0 h-8 w-8 bg-white rounded-full flex items-center justify-center shadow cursor-pointer">
+                    <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    </svg>
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                    />
+                  </label>
+                )}
+              </div>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{fullName}</h2>
-            <p className="text-gray-500 dark:text-gray-400 mt-2">Team Member</p>
           </div>
 
-          {/* Right Column - Info */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <InfoField
-                icon={<FiUser />}
-                label="First Name"
-                value={profile.first_name}
-                isEditing={isEditing}
-                onChange={(value) => setProfile({...profile, first_name: value})}
-              />
-              <InfoField
-                icon={<FiUser />}
-                label="Last Name"
-                value={profile.last_name}
-                isEditing={isEditing}
-                onChange={(value) => setProfile({...profile, last_name: value})}
-              />
-              <InfoField
-                icon={<FiMail />}
-                label="Email"
-                value={profile.email}
-                isEditing={isEditing}
-                onChange={(value) => setProfile({...profile, email: value})}
-              />
-              <InfoField
-                icon={<FiBook />}
-                label="Programme"
-                value={profile.programme}
-                isEditing={isEditing}
-                onChange={(value) => setProfile({...profile, programme: value})}
-              />
-              <InfoField
-                icon={<FiCalendar />}
-                label="Year of Study"
-                value={profile.year_of_study}
-                isEditing={isEditing}
-                onChange={(value) => setProfile({...profile, year_of_study: value})}
-              />
+          <div className="pt-16 px-6 pb-6">
+            {/* Name & Info */}
+            <div className="mb-6">
+              <h1 className="text-xl font-bold text-gray-900 mb-1">{fullName}</h1>
+              <div className="flex items-center gap-4 text-gray-600 text-sm">
+                {profile.programme && <span>{profile.programme}</span>}
+                {profile.year_of_study && <span>• Year {profile.year_of_study}</span>}
+              </div>
             </div>
+
+            {/* Profile Information */}
+            <ProfileInfo 
+              profile={profile}
+              setProfile={setProfile}
+              isEditing={isEditing}
+            />
 
             {/* Action Buttons */}
             {isOwnProfile && isEditing && (
-              <div className="flex gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <button
-                  onClick={handleSave}
-                  disabled={loading}
-                  className="flex items-center gap-2 px-6 py-3 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-medium disabled:opacity-50"
-                >
-                  <FiSave className="h-4 w-4" />
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </button>
-                <button
-                  onClick={() => {
-                    setIsEditing(false);
-                    fetchProfile();
-                  }}
-                  className="flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-medium"
-                >
-                  <FiX className="h-4 w-4" />
-                  Cancel
-                </button>
-              </div>
+              <ProfileActions 
+                handleSave={handleSave}
+                setIsEditing={setIsEditing}
+                fetchProfile={fetchProfile}
+                saving={saving}
+              />
             )}
           </div>
         </div>
+
+        {/* Info Cards (Only for own profile) */}
+        {isOwnProfile && (
+          <InfoCards currentUser={currentUser} />
+        )}
       </div>
     </div>
   );
 };
-
-// Helper Component
-const InfoField = ({ icon, label, value, isEditing, onChange }) => (
-  <div>
-    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-      {icon}
-      {label}
-    </label>
-    {isEditing ? (
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500"
-      />
-    ) : (
-      <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-gray-900 dark:text-white">
-        {value || 'Not provided'}
-      </div>
-    )}
-  </div>
-);
 
 export default Profile;
