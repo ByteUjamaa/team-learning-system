@@ -1,31 +1,37 @@
-import React from "react";
+import React from 'react';
+import { FiSave, FiX } from 'react-icons/fi';
 
-const ProfileActions = ({ isEditing, onEdit, onSave, onCancel }) => {
+const ProfileActions = ({ handleSave, setIsEditing, fetchProfile, saving }) => {
   return (
-    <div className="w-full flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-200">
-      {!isEditing ? (
-        <button
-          onClick={onEdit}
-          className="w-full bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors text-base shadow-lg"
-        >
-          Edit Profile
-        </button>
-      ) : (
-        <>
-          <button
-            onClick={onSave}
-            className="w-full sm:flex-1 bg-green-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-green-700 transition-colors text-base shadow-lg"
-          >
+    <div className="flex gap-3 pt-6 border-t border-gray-100">
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium disabled:opacity-70"
+      >
+        {saving ? (
+          <>
+            <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+            Saving...
+          </>
+        ) : (
+          <>
+            <FiSave className="h-4 w-4" />
             Save Changes
-          </button>
-          <button
-            onClick={onCancel}
-            className="w-full sm:flex-1 bg-gray-500 text-white px-8 py-4 rounded-xl font-semibold hover:bg-gray-600 transition-colors text-base shadow-lg"
-          >
-            Cancel
-          </button>
-        </>
-      )}
+          </>
+        )}
+      </button>
+      
+      <button
+        onClick={() => {
+          setIsEditing(false);
+          fetchProfile();
+        }}
+        className="flex-1 flex items-center justify-center gap-2 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50"
+      >
+        <FiX className="h-4 w-4" />
+        Cancel
+      </button>
     </div>
   );
 };
