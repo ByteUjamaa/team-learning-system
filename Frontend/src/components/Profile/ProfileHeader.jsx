@@ -10,10 +10,7 @@ const ProfileHeader = ({ isOwnProfile, isEditing, setIsEditing, navigate, fullNa
               onClick={() => navigate(-1)}
               className="flex items-center gap-2 text-gray-600 hover:text-gray-900 text-sm"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back
+              ← Back
             </button>
             <div className="h-4 w-px bg-gray-300"></div>
             <h1 className="text-lg font-semibold text-gray-900">
@@ -24,7 +21,7 @@ const ProfileHeader = ({ isOwnProfile, isEditing, setIsEditing, navigate, fullNa
           {isOwnProfile && !isEditing && (
             <button
               onClick={() => setIsEditing(true)}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
             >
               Edit Profile
             </button>
