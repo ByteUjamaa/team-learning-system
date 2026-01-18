@@ -32,9 +32,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'mwaitukasteven@gmail.com'
-EMAIL_HOST_PASSWORD = 'wzfh udvf wgza nzab'
-DEFAULT_FROM_EMAIL = 'mwaitukasteven@gmail.com'
+EMAIL_HOST_USER = 'here the host email goes'
+EMAIL_HOST_PASSWORD = 'password for the email goes here'
+DEFAULT_FROM_EMAIL = 'Team Learning Management System <here the host email goes>'
 
 
 # Application definition
