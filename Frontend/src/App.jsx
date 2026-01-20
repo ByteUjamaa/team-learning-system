@@ -7,6 +7,7 @@ import UserDashboard from "./pages/UserDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
 import Announcements from "./pages/Announcement";
+import Members from "./pages/Members";
 
 // IMPORT THEME PROVIDER ONCE
 import { ThemeProvider } from "./context/ThemeContext"; // Only once
@@ -75,6 +76,7 @@ const AppContent = () => {
             </RequireAuth>
           }
         />
+        
         <Route
           path="/profile"
           element={
@@ -96,11 +98,11 @@ const AppContent = () => {
           }
         />
         <Route
-          path="/profile/:id?"
+          path="/members"
           element={
             <RequireAuth>
               <AppLayout>
-                <Profile />
+                <Members />
               </AppLayout>
             </RequireAuth>
           }
