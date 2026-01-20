@@ -1,5 +1,5 @@
 import React from 'react'
-import TeamCard from '../components/TeamCard'
+import MemberCard from '../components/MemberCard'
 import { FiUsers, FiSearch } from 'react-icons/fi'
 
 const demoTeams = [
@@ -11,13 +11,13 @@ const demoTeams = [
   { id: 6, name: 'Design Team', description: 'UI/UX design and prototyping', members: 4, progress: 85, activeMembers: 3 },
 ]
 
-export default function Teams() {
+export default function Members() {
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Teams</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Members</h1>
           <p className="text-gray-600 dark:text-gray-400">Browse or join a team to start collaborating</p>
         </div>
         <div className="flex items-center gap-2 text-gray-500">
@@ -39,7 +39,7 @@ export default function Teams() {
       {/* Teams Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {demoTeams.map(team => (
-          <TeamCard key={team.id} team={team} />
+          <MemberCard key={team.id} team={team} />
         ))}
       </div>
 
