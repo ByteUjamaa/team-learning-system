@@ -37,7 +37,7 @@ export default function Header() {
           {/* Navigation - ALWAYS VISIBLE */}
           <nav className="flex items-center space-x-4">
             <NavLink to="/dashboard" active={isActive('/dashboard')} label="Dashboard" theme={theme} />
-            <NavLink to="/teams" active={isActive('/teams')} label="Teams" theme={theme} />
+            <NavLink to="/members" active={isActive('/members')} label="Members" theme={theme} />
             <NavLink to="/announcements" active={isActive('/announcements')} label="Announcements" theme={theme} />
             <NavLink to="/profile" active={isActive('/profile')} label="Profile" theme={theme} />
           </nav>
