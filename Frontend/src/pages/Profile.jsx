@@ -5,7 +5,7 @@ import api from "../services/services";
 import ProfileHeader from "../components/Profile/ProfileHeader";
 import ProfileInfo from "../components/Profile/ProfileInfo";
 import ProfileActions from "../components/Profile/ProfileActions";
-import InfoCards from "../components/Profile/InfoCards";
+
 
 const Profile = () => {
   const { id } = useParams();
@@ -196,11 +196,6 @@ const Profile = () => {
             )}
           </div>
         </div>
-
-        {/* Info Cards (Only for own profile) */}
-        {isOwnProfile && (
-          <InfoCards currentUser={currentUser} />
-        )}
       </div>
     </div>
   );
