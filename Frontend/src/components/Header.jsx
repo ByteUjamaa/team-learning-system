@@ -21,9 +21,11 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center space-x-4">
             <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-              theme === 'dark' ? 'bg-blue-600' : 'bg-blue-500'
-            }`}>
-              <span className="text-white font-bold">TLMS</span>
+                theme === 'dark'
+              ? 'bg-gradient-to-br from-blue-600 to-purple-600'
+              : 'bg-gradient-to-br from-blue-500 to-purple-500'
+          }`}>
+              <span className="text-white font-bold">TL</span>
             </div>
             <h1 className={`text-lg font-bold ${
               theme === 'dark' ? 'text-white' : 'text-gray-900'
@@ -35,7 +37,7 @@ export default function Header() {
           {/* Navigation - ALWAYS VISIBLE */}
           <nav className="flex items-center space-x-4">
             <NavLink to="/dashboard" active={isActive('/dashboard')} label="Dashboard" theme={theme} />
-            <NavLink to="/teams" active={isActive('/teams')} label="Teams" theme={theme} />
+            <NavLink to="/members" active={isActive('/members')} label="Members" theme={theme} />
             <NavLink to="/announcements" active={isActive('/announcements')} label="Announcements" theme={theme} />
             <NavLink to="/profile" active={isActive('/profile')} label="Profile" theme={theme} />
           </nav>

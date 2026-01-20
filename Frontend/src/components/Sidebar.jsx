@@ -8,7 +8,7 @@ export default function Sidebar() {
   
   const navItems = [
     { to: '/dashboard', icon: <FiHome />, label: 'Dashboard' },
-    { to: '/teams', icon: <FiUsers />, label: 'Teams' },
+    { to: '/members', icon: <FiUsers />, label: 'Members' },
     { to: '/announcements', icon: <FiBell />, label: 'Announcements' },
     { to: '/profile', icon: <FiUser />, label: 'Profile' },
     { to: '/settings', icon: <FiSettings />, label: 'Settings' },
