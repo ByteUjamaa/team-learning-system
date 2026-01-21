@@ -7,13 +7,14 @@ def send_announcement_email(announcement):
     users = User.objects.filter(is_active=True)
 
     for user in users:
-        if not user.email
+        if not user.email:
             continue
 
 
     subject = f"📢TLMS, Hello {user.first_name}, New Announcement: {announcement.title}"
     for user in users:
         content = f"""
+        Dear {user.first_name}, there is new announcement titled "{announcement.title}".    
 Please login now for more details.
 """
 
