@@ -7,7 +7,7 @@ def send_announcement_email(announcement):
     users = User.objects.filter(is_active=True)
 
     for user in users:
-        if not user.email:
+        if not user.email
             continue
 
 
