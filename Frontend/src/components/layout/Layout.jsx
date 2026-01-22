@@ -1,11 +1,8 @@
 import React from 'react';
 import Header from '../Header';
-import { FiLogOut } from 'react-icons/fi';
-import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 
 export default function Layout({ children }) {
-  const { logout } = useAuth();
   const { theme } = useTheme();
 
   return (
@@ -22,21 +19,6 @@ export default function Layout({ children }) {
                 : 'bg-white text-gray-900 border border-gray-200'
             }`}>
               {children}
-            </div>
-            
-            {/* Logout Button */}
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={logout}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
-                  theme === 'dark'
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                }`}
-              >
-                <FiLogOut className="h-4 w-4" />
-                Logout
-              </button>
             </div>
           </main>
         </div>

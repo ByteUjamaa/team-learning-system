@@ -1,15 +1,21 @@
 import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
-import { FiSun, FiMoon, FiBell, FiUser } from 'react-icons/fi'
+import { useAuth } from '../context/AuthContext'
+import { FiSun, FiMoon, FiBell, FiUser, FiLogOut } from 'react-icons/fi'
 
 export default function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { logout } = useAuth();
   
   const isActive = (path) => location.pathname === path;
 
-  console.log('Current theme in Header:', theme); 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <header className={`sticky top-0 z-50 w-full ${
@@ -21,10 +27,10 @@ export default function Header() {
           {/* Logo */}
           <div className="flex items-center space-x-4">
             <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-                theme === 'dark'
-              ? 'bg-gradient-to-br from-blue-600 to-purple-600'
-              : 'bg-gradient-to-br from-blue-500 to-purple-500'
-          }`}>
+              theme === 'dark'
+                ? 'bg-gradient-to-br from-blue-600 to-purple-600'
+                : 'bg-gradient-to-br from-blue-500 to-purple-500'
+            }`}>
               <span className="text-white font-bold">TL</span>
             </div>
             <h1 className={`text-lg font-bold ${
@@ -34,15 +40,17 @@ export default function Header() {
             </h1>
           </div>
 
-          {/* Navigation - ALWAYS VISIBLE */}
+          {/* Navigation */}
           <nav className="flex items-center space-x-4">
             <NavLink to="/dashboard" active={isActive('/dashboard')} label="Dashboard" theme={theme} />
             <NavLink to="/members" active={isActive('/members')} label="Members" theme={theme} />
             <NavLink to="/announcements" active={isActive('/announcements')} label="Announcements" theme={theme} />
             <NavLink to="/profile" active={isActive('/profile')} label="Profile" theme={theme} />
           </nav>
-            
-            {/* Theme Toggle - WORKING */}
+
+          {/* Right side buttons */}
+          <div className="flex items-center space-x-3">
+            {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
               className={`p-2 rounded-lg ${
@@ -58,6 +66,20 @@ export default function Header() {
                 <FiSun className="h-5 w-5 text-yellow-400" />
               )}
             </button>
+
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
+                theme === 'dark'
+                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-200'
+                  : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+              }`}
+            >
+              <FiLogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
+          </div>
         </div>
       </div>
     </header>
