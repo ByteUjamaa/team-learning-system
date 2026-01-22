@@ -13,7 +13,6 @@ def send_announcement_email(announcement):
         subject = f"📢 TLMS – Hello {user.first_name or user.username}, New Announcement"
 
         content = f"""
-{announcement.title}
 
 Please login now for more details.
 """
