@@ -2,10 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/services";
-import ProfileHeader from "../components/Profile/ProfileHeader";
-import ProfileInfo from "../components/Profile/ProfileInfo";
-import ProfileActions from "../components/Profile/ProfileActions";
-
 
 const Profile = () => {
   const { id } = useParams();
@@ -20,7 +16,6 @@ const Profile = () => {
     year_of_study: "" 
   });
   
-  const [profileImage, setProfileImage] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -36,19 +31,7 @@ const Profile = () => {
     try {
       const API_URL = id ? `/api/v1/profiles/${id}/` : "/api/v1/profiles/me/";
       const response = await api.get(API_URL);
-      const data = response.data;
-      
-      setProfile({
-        first_name: data.first_name || "",
-        last_name: data.last_name || "",
-        email: data.email || "",
-        programme: data.programme || "",
-        year_of_study: data.year_of_study || "",
-      });
-      
-      if (data.profile_picture) {
-        setProfileImage(data.profile_picture);
-      }
+      setProfile(response.data);
     } catch (error) {
       console.error("Error fetching profile:", error);
     } finally {
@@ -59,54 +42,23 @@ const Profile = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const textData = {
-        first_name: profile.first_name,
-        last_name: profile.last_name,
-        email: profile.email,
-        programme: profile.programme,
-        year_of_study: profile.year_of_study,
-      };
-      
-      await api.put("/api/v1/profiles/me/", textData, {
+      await api.put("/api/v1/profiles/me/", profile, {
         headers: { 'Content-Type': 'application/json' }
       });
-      
-      setMessage("Profile updated successfully!");
+      setMessage("Profile updated!");
       setIsEditing(false);
       setTimeout(() => setMessage(""), 3000);
     } catch (error) {
-      setMessage("Failed to update profile");
+      setMessage("Failed to update");
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('profile_picture', file);
-
-    try {
-      const response = await api.put("/api/v1/profiles/me/", formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      
-      if (response.data.profile_picture) {
-        setProfileImage(response.data.profile_picture);
-      }
-      setMessage("Profile picture updated!");
-      setTimeout(() => setMessage(""), 3000);
-    } catch (error) {
-      setMessage("Failed to upload image");
     }
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500"></div>
       </div>
     );
   }
@@ -114,91 +66,120 @@ const Profile = () => {
   const fullName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || "User";
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <ProfileHeader 
-        isOwnProfile={isOwnProfile}
-        isEditing={isEditing}
-        setIsEditing={setIsEditing}
-        navigate={navigate}
-        fullName={fullName}
-      />
-
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Message */}
-        {message && (
-          <div className={`mb-6 p-4 rounded-lg ${message.includes("success") ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
-            {message}
-          </div>
+    <div className="max-w-3xl mx-auto p-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-gray-600 hover:text-gray-900"
+        >
+          ← Back
+        </button>
+        
+        {isOwnProfile && !isEditing && (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+          >
+            Edit
+          </button>
         )}
+      </div>
 
-        {/* Profile Card */}
-        <div className="bg-white rounded-xl shadow border border-gray-200">
-          {/* Header with Image */}
-          <div className="relative h-40 bg-gradient-to-r from-blue-500 to-blue-600">
-            <div className="absolute -bottom-12 left-6">
-              <div className="relative">
-                {profileImage ? (
-                  <img
-                    src={profileImage}
-                    alt={fullName}
-                    className="h-24 w-24 rounded-full border-4 border-white shadow-lg object-cover"
-                  />
-                ) : (
-                  <div className="h-24 w-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center border-4 border-white shadow-lg">
-                    <span className="text-white text-2xl font-bold">
-                      {fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                
-                {isEditing && (
-                  <label className="absolute bottom-0 right-0 h-8 w-8 bg-white rounded-full flex items-center justify-center shadow cursor-pointer">
-                    <svg className="w-4 h-4 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    </svg>
-                    <input 
-                      type="file" 
-                      className="hidden" 
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                    />
-                  </label>
-                )}
-              </div>
+      {/* Message */}
+      {message && (
+        <div className={`mb-4 p-3 rounded ${message.includes("success") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+          {message}
+        </div>
+      )}
+
+      {/* Profile Card */}
+      <div className="bg-white rounded-lg border border-gray-200">
+        {/* Header */}
+        <div className="h-24 bg-gradient-to-r from-blue-400 to-blue-500"></div>
+        
+        <div className="px-6 pb-6 -mt-8">
+          {/* Avatar */}
+          <div className="flex justify-center mb-4">
+            <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xl font-bold border-4 border-white shadow">
+              {fullName.split(' ').map(n => n[0]).join('').toUpperCase()}
             </div>
           </div>
 
-          <div className="pt-16 px-6 pb-6">
-            {/* Name & Info */}
-            <div className="mb-6">
-              <h1 className="text-xl font-bold text-gray-900 mb-1">{fullName}</h1>
-              <div className="flex items-center gap-4 text-gray-600 text-sm">
-                {profile.programme && <span>{profile.programme}</span>}
-                {profile.year_of_study && <span>• Year {profile.year_of_study}</span>}
-              </div>
-            </div>
-
-            {/* Profile Information */}
-            <ProfileInfo 
-              profile={profile}
-              setProfile={setProfile}
-              isEditing={isEditing}
-            />
-
-            {/* Action Buttons */}
-            {isOwnProfile && isEditing && (
-              <ProfileActions 
-                handleSave={handleSave}
-                setIsEditing={setIsEditing}
-                fetchProfile={fetchProfile}
-                saving={saving}
-              />
-            )}
+          {/* Name & Info */}
+          <div className="text-center mb-6">
+            <h1 className="text-lg font-bold text-gray-900">{fullName}</h1>
+            <p className="text-gray-600 text-sm mt-1">
+              {profile.programme || "Team Member"}
+            </p>
           </div>
+
+          {/* Profile Info */}
+          <div className="space-y-3">
+            <InfoField label="First Name" value={profile.first_name} editing={isEditing} 
+              onChange={(e) => setProfile({...profile, first_name: e.target.value})} />
+            
+            <InfoField label="Last Name" value={profile.last_name} editing={isEditing} 
+              onChange={(e) => setProfile({...profile, last_name: e.target.value})} />
+            
+            <InfoField label="Email" value={profile.email} editing={isEditing} 
+              onChange={(e) => setProfile({...profile, email: e.target.value})} />
+            
+            <InfoField label="Programme" value={profile.programme} editing={isEditing} 
+              onChange={(e) => setProfile({...profile, programme: e.target.value})} />
+            
+            <InfoField label="Year of Study" value={profile.year_of_study} editing={isEditing} 
+              onChange={(e) => setProfile({...profile, year_of_study: e.target.value})} />
+          </div>
+
+          {/* Action Buttons */}
+          {isOwnProfile && isEditing && (
+            <div className="flex gap-3 mt-6 pt-4 border-t border-gray-100">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm disabled:opacity-70"
+              >
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+              
+              <button
+                onClick={() => {
+                  setIsEditing(false);
+                  fetchProfile();
+                }}
+                className="flex-1 py-2 border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
+
+const InfoField = ({ label, value, editing, onChange }) => (
+  <div>
+    <label className="block text-xs font-medium text-gray-500 mb-1">
+      {label}
+    </label>
+    
+    {editing ? (
+      <input
+        type="text"
+        value={value || ""}
+        onChange={onChange}
+        className="w-full px-3 py-1.5 rounded border border-gray-300 text-sm"
+        placeholder={label}
+      />
+    ) : (
+      <div className="px-3 py-1.5 bg-gray-50 rounded text-sm text-gray-700">
+        {value || "-"}
+      </div>
+    )}
+  </div>
+);
 
 export default Profile;
