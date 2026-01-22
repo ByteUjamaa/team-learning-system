@@ -40,6 +40,7 @@ export default function Header() {
             <NavLink to="/members" active={isActive('/members')} label="Members" theme={theme} />
             <NavLink to="/announcements" active={isActive('/announcements')} label="Announcements" theme={theme} />
             <NavLink to="/profile" active={isActive('/profile')} label="Profile" theme={theme} />
+            <NavLink to="/logout" active={isActive('/logout')} label="Logout" theme={theme} />
           </nav>
             
             {/* Theme Toggle - WORKING */}
