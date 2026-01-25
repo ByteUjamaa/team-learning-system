@@ -20,7 +20,8 @@ __pycache__/
 *.pyo
 *.pyd
 Backend/db.sqlite3
-Backend/.env/
+Backend/.env
+venv
 
 # Editor directories and files
 .vscode/*
