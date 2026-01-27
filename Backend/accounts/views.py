@@ -150,69 +150,18 @@ class UserProfileDetailView(generics.RetrieveAPIView):
         return context
 
 
-class CurrentUserProfileView(APIView):
+class CurrentUserProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
-    def get(self, request):
-        """Get or create profile for current user"""
-        user_email = request.user.email
-        profile, created = UserProfile.objects.get_or_create(
-            email=user_email,
+    def get_object(self):
+        profile, _ = UserProfile.objects.get_or_create(
+            user=self.request.user,
             defaults={
-                'first_name': request.user.first_name or '',
-                'last_name': request.user.last_name or '',
+                'first_name': self.request.user.first_name or '',
+                'last_name': self.request.user.last_name or '',
+                'email': self.request.user.email,
             }
         )
-        serializer = UserProfileSerializer(profile, context={'request': request})
-        return Response(serializer.data)
-
-    def put(self, request):
-        """Update profile for current user"""
-        user_email = request.user.email
-        try:
-            profile = UserProfile.objects.get(email=user_email)
-        except UserProfile.DoesNotExist:
-            # Create profile if it doesn't exist
-            profile = UserProfile.objects.create(
-                email=user_email,
-                first_name=request.user.first_name or '',
-                last_name=request.user.last_name or '',
-            )
-        
-        # Create a mutable copy of request.data (QueryDict)
-        # When using MultiPartParser, files are in request.FILES, not request.data
-        data = request.data.copy() if hasattr(request.data, 'copy') else dict(request.data)
-        
-        # Merge files from request.FILES into data
-        # This is necessary because MultiPartParser separates form fields and files
-        if hasattr(request, 'FILES') and request.FILES:
-            for key, file in request.FILES.items():
-                data[key] = file
-        
-        # Always set email from authenticated user (don't allow it to be changed)
-        data['email'] = user_email
-        
-        # Ensure required fields have default values if not provided or empty
-        if 'first_name' not in data or (data.get('first_name') == '' and not profile.first_name):
-            data['first_name'] = profile.first_name or request.user.first_name or ''
-        if 'last_name' not in data or (data.get('last_name') == '' and not profile.last_name):
-            data['last_name'] = profile.last_name or request.user.last_name or ''
-        
-        # Pass data to serializer - it will handle both form fields and files
-        serializer = UserProfileSerializer(profile, data=data, partial=True, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        
-        # Return detailed error information for debugging
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.error(f"Profile update validation failed for user {user_email}: {serializer.errors}")
-        if hasattr(request, 'FILES'):
-            logger.error(f"Files in request: {list(request.FILES.keys())}")
-        
-        return Response({
-            'errors': serializer.errors,
-            'detail': 'Validation failed. Please check the field errors below.'
-        }, status=status.HTTP_400_BAD_REQUEST)
+        return profile
