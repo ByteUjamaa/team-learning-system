@@ -13,11 +13,11 @@ class UserProfile(models.Model):
     programme = models.CharField(max_length=200, blank=True)
     year_of_study = models.CharField(max_length=50, blank=True)
     profile_picture = models.ImageField(
-        upload_to='profile_pictures/', 
-        blank=True, 
-        null=True,
-        default='profile_pictures/default.png'
-    )
+    upload_to='profile_pictures/',
+    blank=True,
+    null=True
+)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
