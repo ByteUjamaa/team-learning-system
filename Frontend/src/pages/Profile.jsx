@@ -24,7 +24,11 @@ const Profile = () => {
 
   const fetchProfile = async () => {
     try {
-      const API_URL = id ? `/api/v1/profiles/${id}/` : "/api/v1/profiles/me/";
+      // Update URLs based on your Django urls.py
+      const API_URL = id 
+        ? `/accounts/profiles/${id}/detail/`  // For other users
+        : "/accounts/profiles/me/";           // For own profile
+      
       const { data } = await api.get(API_URL);
       
       setProfile({
@@ -45,7 +49,8 @@ const Profile = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await api.put("/api/v1/profiles/me/", profile);
+      // Use the update endpoint for own profile
+      await api.put(`/accounts/profiles/${currentUser.id}/`, profile);
       setMessage("Profile updated successfully");
       setIsEditing(false);
       setTimeout(() => setMessage(""), 2000);
@@ -64,7 +69,7 @@ const Profile = () => {
     formData.append('profile_picture', file);
 
     try {
-      const { data } = await api.put("/api/v1/profiles/me/", formData, {
+      const { data } = await api.patch(`/accounts/profiles/${currentUser.id}/`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       if (data.profile_picture) setProfileImage(data.profile_picture);
@@ -151,13 +156,13 @@ const Profile = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <InfoField theme={theme} icon={<FiUser />} label="First Name" value={profile.first_name} editing={isEditing} onChange={e => setProfile({...profile, first_name: e.target.value})} />
-        <InfoField theme={theme} icon={<FiUser />} label="Last Name" value={profile.last_name} editing={isEditing} onChange={e => setProfile({...profile, last_name: e.target.value})} />
+        <InfoField theme={theme} icon={<FiUser />} label="First Name" value={profile.first_name} editing={isEditing && isOwnProfile} onChange={e => setProfile({...profile, first_name: e.target.value})} />
+        <InfoField theme={theme} icon={<FiUser />} label="Last Name" value={profile.last_name} editing={isEditing && isOwnProfile} onChange={e => setProfile({...profile, last_name: e.target.value})} />
         <div className="md:col-span-2">
-          <InfoField theme={theme} icon={<FiMail />} label="Email Address" value={profile.email} editing={isEditing} onChange={e => setProfile({...profile, email: e.target.value})} />
+          <InfoField theme={theme} icon={<FiMail />} label="Email Address" value={profile.email} editing={isEditing && isOwnProfile} onChange={e => setProfile({...profile, email: e.target.value})} />
         </div>
-        <InfoField theme={theme} icon={<FiBook />} label="Programme" value={profile.programme} editing={isEditing} onChange={e => setProfile({...profile, programme: e.target.value})} />
-        <InfoField theme={theme} icon={<FiCalendar />} label="Year of Study" value={profile.year_of_study} editing={isEditing} onChange={e => setProfile({...profile, year_of_study: e.target.value})} />
+        <InfoField theme={theme} icon={<FiBook />} label="Programme" value={profile.programme} editing={isEditing && isOwnProfile} onChange={e => setProfile({...profile, programme: e.target.value})} />
+        <InfoField theme={theme} icon={<FiCalendar />} label="Year of Study" value={profile.year_of_study} editing={isEditing && isOwnProfile} onChange={e => setProfile({...profile, year_of_study: e.target.value})} />
       </div>
 
       {isOwnProfile && isEditing && (
