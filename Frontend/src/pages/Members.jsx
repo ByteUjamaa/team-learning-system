@@ -7,7 +7,7 @@ import { FiSearch, FiUsers, FiUserCheck, FiBook, FiBookOpen } from 'react-icons/
 const Members = () => {
   const { theme } = useTheme();
   const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -18,6 +18,7 @@ const Members = () => {
     setLoading(true);
     try {
       const response = await api.get("/accounts/profiles/list/");
+      console.log(response.data)
       setMembers(response.data || []);
     } catch (error) {
       console.error("Error fetching members:", error);
