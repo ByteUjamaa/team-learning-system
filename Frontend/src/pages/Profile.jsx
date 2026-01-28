@@ -15,14 +15,17 @@ const Profile = () => {
     first_name: "", last_name: "", email: "", programme: "", year_of_study: "" 
   });
   const [profileImage, setProfileImage] = useState("");
-  const [profileId, setProfileId] = useState(null); // ADD THIS
+  const [profileId, setProfileId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const isOwnProfile = !id || id === currentUser?.id;
 
-  useEffect(() => { fetchProfile(); }, [id]);
+  useEffect(() => { 
+    console.log("Current user:", currentUser); // Debug
+    fetchProfile(); 
+  }, [id]);
 
   const fetchProfile = async () => {
     try {
@@ -30,7 +33,9 @@ const Profile = () => {
         ? `/accounts/profiles/${id}/detail/`
         : "/accounts/profiles/me/";
       
+      console.log("Fetching profile from:", API_URL);
       const { data } = await api.get(API_URL);
+      console.log("Profile data:", data);
       
       // Save the profile ID from the response
       if (data.id) {
@@ -61,18 +66,33 @@ const Profile = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Use profileId instead of currentUser.id
+      // Use profileId from the API response
       if (!profileId) {
         setMessage("Error: Cannot update profile");
         return;
       }
       
-      await api.put(`/accounts/profiles/${profileId}/`, profile);
+      console.log("Updating profile ID:", profileId);
+      console.log("Profile data to save:", profile);
+      
+      // Make sure to send with proper headers
+      const response = await api.put(`/accounts/profiles/${profileId}/`, profile, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log("Update response:", response.data);
       setMessage("Profile updated");
       setIsEditing(false);
       setTimeout(() => setMessage(""), 2000);
+      
+      // Refresh profile data
+      fetchProfile();
     } catch (error) {
-      setMessage("Failed to update");
+      console.error("Save error:", error);
+      console.error("Error response:", error.response?.data);
+      setMessage(`Failed to update: ${error.response?.data?.detail || error.message}`);
     } finally {
       setSaving(false);
     }
@@ -82,7 +102,7 @@ const Profile = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Use profileId instead of currentUser.id
+    // Use profileId from the API response
     if (!profileId) {
       setMessage("Error: Cannot upload image");
       return;
@@ -101,6 +121,7 @@ const Profile = () => {
       setMessage("Picture updated");
       setTimeout(() => setMessage(""), 2000);
     } catch (error) {
+      console.error("Upload error:", error);
       setMessage("Upload failed");
     }
   };
