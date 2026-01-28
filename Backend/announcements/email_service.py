@@ -10,10 +10,10 @@ def send_announcement_email(announcement):
         if not user.email:
             continue
 
+        subject = f"📢 TLMS – Hello {user.first_name or user.username}, New Announcement: {announcement.title}"
 
-    subject = f"📢TLMS, Hello {user.first_name}, New Announcement: {announcement.title}"
-    for user in users:
-        content = f"""  
+        content = f"""
+
 Please login now for more details.
 """
 
