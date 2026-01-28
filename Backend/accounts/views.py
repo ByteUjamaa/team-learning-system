@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -153,15 +153,18 @@ class UserProfileDetailView(generics.RetrieveAPIView):
 class CurrentUserProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
 
     def get_object(self):
-        profile, _ = UserProfile.objects.get_or_create(
+        """
+        Always return the authenticated user's profile
+        """
+        profile, created = UserProfile.objects.get_or_create(
             user=self.request.user,
             defaults={
-                'first_name': self.request.user.first_name or '',
-                'last_name': self.request.user.last_name or '',
-                'email': self.request.user.email,
+                "email": self.request.user.email,
+                "first_name": self.request.user.first_name or "",
+                "last_name": self.request.user.last_name or "",
             }
         )
         return profile
