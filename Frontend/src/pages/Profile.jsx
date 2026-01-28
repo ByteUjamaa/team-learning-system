@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import api from "../services/services";
-import { FiEdit2, FiSave, FiX, FiMail, FiUser, FiBook, FiCalendar, FiCamera } from 'react-icons/fi';
+import { FiEdit2, FiSave, FiX, FiMail, FiUser, FiBook, FiCalendar, FiCamera, FiArrowLeft } from 'react-icons/fi';
 
 const Profile = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const { theme } = useTheme();
   
@@ -14,18 +15,32 @@ const Profile = () => {
     first_name: "", last_name: "", email: "", programme: "", year_of_study: "" 
   });
   const [profileImage, setProfileImage] = useState("");
+  const [profileId, setProfileId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const isOwnProfile = !id || id === currentUser?.id;
 
-  useEffect(() => { fetchProfile(); }, [id]);
+  useEffect(() => { 
+    console.log("Current user:", currentUser); // Debug
+    fetchProfile(); 
+  }, [id]);
 
   const fetchProfile = async () => {
     try {
-      const API_URL = id ? `/api/v1/profiles/${id}/` : "/api/v1/profiles/me/";
+      const API_URL = id 
+        ? `/accounts/profiles/${id}/detail/`
+        : "/accounts/profiles/me/";
+      
+      console.log("Fetching profile from:", API_URL);
       const { data } = await api.get(API_URL);
+      console.log("Profile data:", data);
+      
+      // Save the profile ID from the response
+      if (data.id) {
+        setProfileId(data.id);
+      }
       
       setProfile({
         first_name: data.first_name || "",
@@ -34,9 +49,15 @@ const Profile = () => {
         programme: data.programme || "",
         year_of_study: data.year_of_study || "",
       });
-      if (data.profile_picture) setProfileImage(data.profile_picture);
+      
+      if (data.profile_picture) {
+        setProfileImage(data.profile_picture);
+      }
     } catch (error) {
       console.error("Error:", error);
+      if (error.response?.status === 404 && id) {
+        navigate('/members');
+      }
     } finally {
       setLoading(false);
     }
@@ -45,12 +66,33 @@ const Profile = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await api.put("/api/v1/profiles/me/", profile);
-      setMessage("Profile updated successfully");
+      // Use profileId from the API response
+      if (!profileId) {
+        setMessage("Error: Cannot update profile");
+        return;
+      }
+      
+      console.log("Updating profile ID:", profileId);
+      console.log("Profile data to save:", profile);
+      
+      // Make sure to send with proper headers
+      const response = await api.put(`/accounts/profiles/${profileId}/`, profile, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log("Update response:", response.data);
+      setMessage("Profile updated");
       setIsEditing(false);
       setTimeout(() => setMessage(""), 2000);
+      
+      // Refresh profile data
+      fetchProfile();
     } catch (error) {
-      setMessage("Failed to update profile");
+      console.error("Save error:", error);
+      console.error("Error response:", error.response?.data);
+      setMessage(`Failed to update: ${error.response?.data?.detail || error.message}`);
     } finally {
       setSaving(false);
     }
@@ -60,18 +102,27 @@ const Profile = () => {
     const file = e.target.files[0];
     if (!file) return;
 
+    // Use profileId from the API response
+    if (!profileId) {
+      setMessage("Error: Cannot upload image");
+      return;
+    }
+
     const formData = new FormData();
     formData.append('profile_picture', file);
 
     try {
-      const { data } = await api.put("/api/v1/profiles/me/", formData, {
+      const { data } = await api.patch(`/accounts/profiles/${profileId}/`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      if (data.profile_picture) setProfileImage(data.profile_picture);
-      setMessage("Profile picture updated");
+      if (data.profile_picture) {
+        setProfileImage(data.profile_picture);
+      }
+      setMessage("Picture updated");
       setTimeout(() => setMessage(""), 2000);
     } catch (error) {
-      setMessage("Failed to upload image");
+      console.error("Upload error:", error);
+      setMessage("Upload failed");
     }
   };
 
@@ -90,12 +141,23 @@ const Profile = () => {
     <div className="max-w-lg mx-auto">
       {message && (
         <div className={`mb-5 p-3 rounded-lg text-sm ${
-          message.includes("successfully") 
+          message.includes("updated") 
             ? theme === 'dark' ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-700'
             : theme === 'dark' ? 'bg-red-900/30 text-red-400' : 'bg-red-100 text-red-700'
         }`}>
           {message}
         </div>
+      )}
+
+      {id && !isOwnProfile && (
+        <button onClick={() => navigate('/members')} className={`mb-4 flex items-center gap-2 px-4 py-2 rounded-lg font-medium ${
+          theme === 'dark' 
+            ? 'bg-gray-800 hover:bg-gray-700 text-gray-300' 
+            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+        }`}>
+          <FiArrowLeft className="h-4 w-4" />
+          Back to Members
+        </button>
       )}
 
       <div className="relative mb-8">
@@ -112,7 +174,9 @@ const Profile = () => {
                 </div>
               ) : (
                 <div className={`h-20 w-20 rounded-full ${
-                  theme === 'dark' ? 'bg-gradient-to-br from-gray-700 to-gray-900' : 'bg-gradient-to-br from-blue-400 to-purple-500'
+                  theme === 'dark' 
+                    ? 'bg-gradient-to-br from-gray-700 to-gray-900' 
+                    : 'bg-gradient-to-br from-blue-400 to-purple-500'
                 } flex items-center justify-center border-3 ${
                   theme === 'dark' ? 'border-gray-800' : 'border-white'
                 } shadow-lg`}>
@@ -151,13 +215,13 @@ const Profile = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <InfoField theme={theme} icon={<FiUser />} label="First Name" value={profile.first_name} editing={isEditing} onChange={e => setProfile({...profile, first_name: e.target.value})} />
-        <InfoField theme={theme} icon={<FiUser />} label="Last Name" value={profile.last_name} editing={isEditing} onChange={e => setProfile({...profile, last_name: e.target.value})} />
+        <InfoField theme={theme} icon={<FiUser />} label="First Name" value={profile.first_name} editing={isEditing && isOwnProfile} onChange={e => setProfile({...profile, first_name: e.target.value})} />
+        <InfoField theme={theme} icon={<FiUser />} label="Last Name" value={profile.last_name} editing={isEditing && isOwnProfile} onChange={e => setProfile({...profile, last_name: e.target.value})} />
         <div className="md:col-span-2">
-          <InfoField theme={theme} icon={<FiMail />} label="Email Address" value={profile.email} editing={isEditing} onChange={e => setProfile({...profile, email: e.target.value})} />
+          <InfoField theme={theme} icon={<FiMail />} label="Email Address" value={profile.email} editing={isEditing && isOwnProfile} onChange={e => setProfile({...profile, email: e.target.value})} />
         </div>
-        <InfoField theme={theme} icon={<FiBook />} label="Programme" value={profile.programme} editing={isEditing} onChange={e => setProfile({...profile, programme: e.target.value})} />
-        <InfoField theme={theme} icon={<FiCalendar />} label="Year of Study" value={profile.year_of_study} editing={isEditing} onChange={e => setProfile({...profile, year_of_study: e.target.value})} />
+        <InfoField theme={theme} icon={<FiBook />} label="Programme" value={profile.programme} editing={isEditing && isOwnProfile} onChange={e => setProfile({...profile, programme: e.target.value})} />
+        <InfoField theme={theme} icon={<FiCalendar />} label="Year of Study" value={profile.year_of_study} editing={isEditing && isOwnProfile} onChange={e => setProfile({...profile, year_of_study: e.target.value})} />
       </div>
 
       {isOwnProfile && isEditing && (
@@ -166,7 +230,7 @@ const Profile = () => {
             theme === 'dark' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-blue-500 hover:bg-blue-600 text-white'
           } ${saving ? 'opacity-70' : ''}`}>
             {saving ? <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div> : <FiSave className="h-4 w-4" />}
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? 'Saving...' : 'Save'}
           </button>
           <button onClick={() => { setIsEditing(false); fetchProfile(); }} className={`flex-1 flex items-center justify-center gap-2 py-2.5 border rounded-lg text-sm font-medium ${
             theme === 'dark' ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'
