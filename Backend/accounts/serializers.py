@@ -15,33 +15,20 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['role'] = 'admin' if (user.is_staff or user.is_superuser) else 'user'
         return token
 
-
 class UserProfileSerializer(serializers.ModelSerializer):
     full_name = serializers.ReadOnlyField()
     profile_picture_url = serializers.SerializerMethodField()
 
     class Meta:
         model = UserProfile
-        fields = '__all__'
-        read_only_fields = ('id', 'created_at', 'updated_at', 'user')
+        exclude = ("user",)   # ⬅️ VERY IMPORTANT
+        read_only_fields = ("id", "created_at", "updated_at")
 
     def get_profile_picture_url(self, obj):
-        request = self.context.get('request')
+        request = self.context.get("request")
         if obj.profile_picture:
-            return request.build_absolute_uri(obj.profile_picture.url) if request else obj.profile_picture.url
+            return request.build_absolute_uri(obj.profile_picture.url)
         return None
-
-    def update(self, instance, validated_data):
-        """
-        Keep User.email in sync with UserProfile.email
-        """
-        email = validated_data.get("email")
-
-        if email:
-            instance.user.email = email
-            instance.user.save(update_fields=["email"])
-
-        return super().update(instance, validated_data)
     
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True, write_only=True)
