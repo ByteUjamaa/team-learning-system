@@ -1,6 +1,5 @@
 // src/context/AuthContext.jsx
-import React from 'react';
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import api from '../services/services';
 
@@ -35,12 +34,29 @@ export const AuthProvider = ({ children }) => {
       const res = await api.post('/accounts/token/refresh/', { refresh });
       localStorage.setItem('access_token', res.data.access);
       const decoded = jwtDecode(res.data.access);
-      // Extract user data with role
-      const userData = {
-        username: decoded.username,
-        email: decoded.email,
-        role: decoded.role || 'user',
-      };
+      
+      // Try to get user from localStorage first
+      const storedUser = localStorage.getItem('user');
+      let userData;
+      
+      if (storedUser) {
+        try {
+          userData = JSON.parse(storedUser);
+        } catch (e) {
+          console.error("Error parsing stored user:", e);
+        }
+      }
+      
+      if (!userData) {
+        // Extract user data from token as fallback
+        userData = {
+          username: decoded.username || decoded.sub,
+          email: decoded.email || '',
+          role: decoded.role || 'user',
+          id: decoded.user_id || decoded.id || null
+        };
+      }
+      
       setUser(userData);
       return true;
     } catch (err) {
@@ -52,14 +68,31 @@ export const AuthProvider = ({ children }) => {
   // Initial load
   useEffect(() => {
     const access = localStorage.getItem('access_token');
+    const storedUser = localStorage.getItem('user');
+    
     if (access && !isTokenExpired(access)) {
       const decoded = jwtDecode(access);
-      // Extract user data with role
-      const userData = {
-        username: decoded.username,
-        email: decoded.email,
-        role: decoded.role || 'user',
-      };
+      
+      // Try to get user from localStorage first, then from token
+      let userData;
+      if (storedUser) {
+        try {
+          userData = JSON.parse(storedUser);
+        } catch (e) {
+          console.error("Error parsing stored user:", e);
+        }
+      }
+      
+      if (!userData) {
+        // Extract user data from token
+        userData = {
+          username: decoded.username || decoded.sub,
+          email: decoded.email || '',
+          role: decoded.role || 'user',
+          id: decoded.user_id || decoded.id || null
+        };
+      }
+      
       setUser(userData);
     } else if (access) {
       // Try refresh
@@ -93,13 +126,25 @@ export const AuthProvider = ({ children }) => {
   const login = (accessToken, refreshToken, userData) => {
     localStorage.setItem('access_token', accessToken);
     localStorage.setItem('refresh_token', refreshToken);
-    setUser(userData);
-    return userData;
+    
+    // Make sure userData has all necessary fields
+    const completeUserData = {
+      ...userData,
+      id: userData.id || userData.user_id || userData.pk || null,
+      username: userData.username || userData.email?.split('@')[0] || '',
+      email: userData.email || '',
+      role: userData.role || 'user'
+    };
+    
+    localStorage.setItem('user', JSON.stringify(completeUserData));
+    setUser(completeUserData);
+    return completeUserData;
   };
 
   const logout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
     setUser(null);
   };
 
