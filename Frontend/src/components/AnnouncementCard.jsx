@@ -26,10 +26,10 @@ export default function AnnouncementCard({ ann, theme = 'light', isExpanded = fa
         ? 'bg-gray-800/30 border-gray-700 hover:border-gray-600'
         : 'bg-white border-gray-200 hover:border-gray-300'
     }`}>
-      <div className="p-5">
+      <div className="p-4 sm:p-5">
         {/* Title */}
         <div className="flex justify-between items-start gap-4">
-          <h3 className={`font-semibold text-lg mb-3 ${
+          <h3 className={`font-semibold text-base sm:text-lg mb-3 ${
             theme === 'dark' ? 'text-white' : 'text-gray-900'
           }`}>
             {ann.title}
@@ -54,7 +54,7 @@ export default function AnnouncementCard({ ann, theme = 'light', isExpanded = fa
         </div>
 
         {/* Content */}
-        <div className={`mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+        <div className={`mb-4 text-sm sm:text-base ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
           <p className="whitespace-pre-line">{displayedContent}</p>
           
           {shouldShowToggle && !(isExpanded || isExpandedLocal) && (
@@ -72,7 +72,7 @@ export default function AnnouncementCard({ ann, theme = 'light', isExpanded = fa
         </div>
 
         {/* Footer */}
-        <div className={`flex items-center justify-between text-sm ${
+        <div className={`flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm gap-3 sm:gap-0 ${
           theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
         }`}>
           <div className="flex items-center gap-3">
