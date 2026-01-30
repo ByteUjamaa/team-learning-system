@@ -17,7 +17,7 @@ const Members = () => {
   const fetchMembers = async () => {
     setLoading(true);
     try {
-      const response = await api.get("/accounts/profiles/list/");
+      const response = await api.get("/api/v1/profiles/list/");
       setMembers(response.data || []);
     } catch (error) {
       console.error("Error fetching members:", error);
@@ -156,7 +156,7 @@ const Members = () => {
               <Link
                 key={member.id}
                 to={`/profile/${member.id}`}
-                className={`rounded-xl border transition-all duration-200 hover:shadow-md ${
+                className={`rounded-xl border transition-all duration-200 hover:shadow-md cursor-pointer ${
                   theme === 'dark'
                     ? 'bg-gray-800/30 border-gray-700 hover:border-gray-600'
                     : 'bg-white border-gray-200 hover:border-gray-300'
