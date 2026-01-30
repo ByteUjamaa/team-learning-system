@@ -8,6 +8,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
 import Announcements from "./pages/Announcement";
 import Members from "./pages/Members";
+import ChangePassword from "./pages/ChangePassword";
 
 // IMPORT THEME PROVIDER ONCE
 import { ThemeProvider } from "./context/ThemeContext"; // Only once
@@ -87,6 +88,16 @@ const AppContent = () => {
             </RequireAuth>
           }
         />
+         <Route
+             path="/profile/:id"
+            element={
+             <RequireAuth>
+              <AppLayout>
+               <Profile />
+               </AppLayout>
+                </RequireAuth>
+           }
+         />
         <Route
           path="/announcements"
           element={
@@ -107,6 +118,16 @@ const AppContent = () => {
             </RequireAuth>
           }
         />
+        <Route
+            path="/change-password"
+           element={
+          <RequireAuth>
+           <AppLayout>
+           <ChangePassword />
+         </AppLayout>
+        </RequireAuth>
+        }
+       />
         <Route
           path="*"
           element={
