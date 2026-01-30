@@ -18,7 +18,6 @@ const Members = () => {
     setLoading(true);
     try {
       const response = await api.get("/accounts/profiles/list/");
-      console.log(response.data)
       setMembers(response.data || []);
     } catch (error) {
       console.error("Error fetching members:", error);
@@ -59,16 +58,16 @@ const Members = () => {
     <div className={`max-w-6xl mx-auto p-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
+          <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-lg flex items-center justify-center ${
             theme === 'dark' 
               ? 'bg-gradient-to-br from-blue-600 to-purple-600' 
               : 'bg-gradient-to-br from-blue-500 to-purple-500'
           }`}>
-            <FiUsers className="h-6 w-6 text-white" />
+            <FiUsers className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Team Members</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">Team Members</h1>
             <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
               Browse all team members ({totalMembers})
             </p>
@@ -77,7 +76,7 @@ const Members = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard 
           theme={theme} 
           icon={<FiUsers />} 
@@ -148,7 +147,7 @@ const Members = () => {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredMembers.map((member) => {
             const fullName = `${member.first_name || ''} ${member.last_name || ''}`.trim() || "User";
             const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -166,12 +165,12 @@ const Members = () => {
                 <div className="p-5">
                   <div className="flex items-center gap-4">
                     {/* Avatar */}
-                    <div className={`h-12 w-12 rounded-full flex items-center justify-center ${
+                    <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full flex items-center justify-center ${
                       theme === 'dark'
                         ? 'bg-gradient-to-br from-blue-600 to-purple-600'
                         : 'bg-gradient-to-br from-blue-500 to-purple-500'
                     }`}>
-                      <span className="text-white font-bold text-sm">
+                      <span className="text-white font-bold text-sm sm:text-base">
                         {initials}
                       </span>
                     </div>
@@ -262,15 +261,15 @@ const StatCard = ({ theme, icon, value, label, color }) => {
   return (
     <div className={`bg-gradient-to-br ${colorClasses[color]} p-4 rounded-xl border`}>
       <div className="flex items-center gap-4">
-        <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
+        <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-lg flex items-center justify-center ${
           theme === 'dark' ? 'bg-gray-800' : 'bg-white'
         }`}>
-          <div className={iconColors[color]}>
+          <div className={`${iconColors[color]} text-xl sm:text-2xl`}>
             {icon}
           </div>
         </div>
         <div>
-          <p className={`text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+          <p className={`text-xl sm:text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
             {value}
           </p>
           <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
