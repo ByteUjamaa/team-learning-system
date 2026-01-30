@@ -34,17 +34,17 @@ export default function Announcements() {
   return (
     <div className={`${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <div className="flex items-center gap-4">
-          <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${
+          <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-lg flex items-center justify-center ${
             theme === 'dark' 
               ? 'bg-gradient-to-br from-blue-600 to-purple-600' 
               : 'bg-gradient-to-br from-blue-500 to-purple-500'
           }`}>
-            <FiBell className="h-6 w-6 text-white" />
+            <FiBell className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Announcements</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">Announcements</h1>
             <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
               Stay updated with the latest news
             </p>

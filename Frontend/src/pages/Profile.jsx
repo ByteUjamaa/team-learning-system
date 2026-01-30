@@ -32,19 +32,18 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
 
-  const isOwnProfile = !id || id === currentUser?.id;
+  const isOwnProfile = !id || id === currentUser?.id?.toString() || id === "me";
 
   useEffect(() => {
     fetchProfile();
   }, [id]);
 
-  // ==========================
-  // FETCH PROFILE
-  // ==========================
   const fetchProfile = async () => {
     try {
-      const API_URL = id
+      setLoading(true);
+      const API_URL = id && id !== "me"
         ? `/api/v1/profiles/${id}/`
         : "/api/v1/profiles/me/";
 
@@ -58,7 +57,6 @@ const Profile = () => {
         year_of_study: data.year_of_study || ""
       });
 
-      // 🔧 FIX: use profile_picture_url
       if (data.profile_picture_url) {
         setProfileImage(data.profile_picture_url);
       } else {
@@ -66,65 +64,70 @@ const Profile = () => {
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
+      setMessage("Failed to load profile");
+      setMessageType("error");
+      setTimeout(() => setMessage(""), 2000);
     } finally {
       setLoading(false);
     }
   };
 
-  // ==========================
-  // SAVE TEXT DATA (NO IMAGE)
-  // ==========================
   const handleSave = async () => {
     setSaving(true);
     try {
-      // 🔧 FIX: PATCH instead of PUT
       await api.patch("/api/v1/profiles/me/", profile);
 
       setMessage("Profile updated successfully");
+      setMessageType("success");
       setIsEditing(false);
       fetchProfile();
       setTimeout(() => setMessage(""), 2000);
     } catch (error) {
-      console.error(error);
+      console.error("Save error:", error);
       setMessage("Failed to update profile");
+      setMessageType("error");
     } finally {
       setSaving(false);
     }
   };
 
-  // ==========================
-  // UPLOAD PROFILE IMAGE
-  // ==========================
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setMessage("Please select an image file");
+      setMessageType("error");
+      setTimeout(() => setMessage(""), 2000);
+      return;
+    }
 
     const formData = new FormData();
     formData.append("profile_picture", file);
 
     try {
-      // 🔧 FIX: PATCH + NO manual headers
       const { data } = await api.patch(
         "/api/v1/profiles/me/",
         formData
       );
 
-      // 🔧 FIX: correct image field
       if (data.profile_picture_url) {
         setProfileImage(data.profile_picture_url);
       }
 
       setMessage("Profile picture updated");
+      setMessageType("success");
+      fetchProfile();
       setTimeout(() => setMessage(""), 2000);
     } catch (error) {
-      console.error(error);
+      console.error("Upload error:", error);
       setMessage("Failed to upload image");
+      setMessageType("error");
     }
+
+    e.target.value = '';
   };
 
-  // ==========================
-  // UI (UNCHANGED)
-  // ==========================
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -148,11 +151,11 @@ const Profile = () => {
     .slice(0, 2);
 
   return (
-    <div className="max-w-lg mx-auto">
+    <div className="max-w-lg mx-auto w-full">
       {message && (
         <div
           className={`mb-5 p-3 rounded-lg text-sm ${
-            message.includes("successfully")
+            messageType === "success"
               ? theme === "dark"
                 ? "bg-green-900/30 text-green-400"
                 : "bg-green-100 text-green-700"
@@ -167,7 +170,7 @@ const Profile = () => {
 
       <div className="relative mb-8">
         <div
-          className={`relative h-36 rounded-xl ${
+          className={`relative h-32 sm:h-36 rounded-xl ${
             theme === "dark"
               ? "bg-gradient-to-r from-gray-800 to-gray-900"
               : "bg-gradient-to-r from-blue-500 to-purple-600"
@@ -177,7 +180,7 @@ const Profile = () => {
             <div className="relative">
               {profileImage ? (
                 <div
-                  className={`h-20 w-20 rounded-full border-3 ${
+                  className={`h-16 w-16 sm:h-20 sm:w-20 rounded-full border-3 ${
                     theme === "dark" ? "border-gray-800" : "border-white"
                   } shadow-lg overflow-hidden`}
                 >
@@ -189,7 +192,7 @@ const Profile = () => {
                 </div>
               ) : (
                 <div
-                  className={`h-20 w-20 rounded-full ${
+                  className={`h-16 w-16 sm:h-20 sm:w-20 rounded-full ${
                     theme === "dark"
                       ? "bg-gradient-to-br from-gray-700 to-gray-900"
                       : "bg-gradient-to-br from-blue-400 to-purple-500"
@@ -198,7 +201,7 @@ const Profile = () => {
                   } shadow-lg`}
                 >
                   <span
-                    className={`text-xl font-bold ${
+                    className={`text-lg sm:text-xl font-bold ${
                       theme === "dark" ? "text-gray-300" : "text-white"
                     }`}
                   >
@@ -210,26 +213,26 @@ const Profile = () => {
               {isOwnProfile && !isEditing && (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className={`absolute -bottom-1 -right-1 h-8 w-8 rounded-full flex items-center justify-center ${
+                  className={`absolute -bottom-1 -right-1 h-6 w-6 sm:h-8 sm:w-8 rounded-full flex items-center justify-center ${
                     theme === "dark"
                       ? "bg-blue-600 hover:bg-blue-700"
                       : "bg-blue-500 hover:bg-blue-600"
                   }`}
                 >
-                  <FiEdit2 className="h-4 w-4 text-white" />
+                  <FiEdit2 className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                 </button>
               )}
 
               {isOwnProfile && isEditing && (
                 <label
-                  className={`absolute -bottom-1 -right-1 h-8 w-8 rounded-full flex items-center justify-center cursor-pointer ${
+                  className={`absolute -bottom-1 -right-1 h-6 w-6 sm:h-8 sm:w-8 rounded-full flex items-center justify-center cursor-pointer ${
                     theme === "dark"
                       ? "bg-gray-700 hover:bg-gray-600"
                       : "bg-white hover:bg-gray-50"
                   }`}
                 >
                   <FiCamera
-                    className={`h-4 w-4 ${
+                    className={`h-3 w-3 sm:h-4 sm:w-4 ${
                       theme === "dark"
                         ? "text-gray-300"
                         : "text-gray-700"
@@ -249,7 +252,7 @@ const Profile = () => {
 
         <div className="text-center mt-12 mb-6">
           <h1
-            className={`text-xl font-semibold ${
+            className={`text-lg sm:text-xl font-semibold ${
               theme === "dark" ? "text-white" : "text-gray-900"
             }`}
           >
@@ -269,7 +272,7 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <InfoField
           theme={theme}
           icon={<FiUser />}
@@ -290,7 +293,7 @@ const Profile = () => {
             setProfile({ ...profile, last_name: e.target.value })
           }
         />
-        <div className="md:col-span-2">
+        <div className="sm:col-span-2">
           <InfoField
             theme={theme}
             icon={<FiMail />}
@@ -325,7 +328,7 @@ const Profile = () => {
       </div>
 
       {isOwnProfile && isEditing && (
-        <div className="flex gap-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row gap-3 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={handleSave}
             disabled={saving}
@@ -372,7 +375,7 @@ const InfoField = ({ theme, icon, label, value, editing, onChange }) => (
   >
     <div className="flex items-center gap-3">
       <div
-        className={`h-10 w-10 rounded-lg flex items-center justify-center ${
+        className={`h-8 w-8 sm:h-10 sm:w-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
           theme === "dark"
             ? "bg-gray-700 text-blue-400"
             : "bg-blue-50 text-blue-500"

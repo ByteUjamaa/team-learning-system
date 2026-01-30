@@ -23,20 +23,20 @@ export default function TeamCard({ team }) {
   return (
     <div className="group relative">
       <div className="relative bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 
-                    p-6 transition-all duration-300
+                    p-4 sm:p-6 transition-all duration-300
                     hover:shadow-elevated hover:border-primary-300 dark:hover:border-primary-700
                     hover:scale-[1.01]">
         
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className={`h-14 w-14 rounded-xl bg-gradient-to-br ${getAvatarColor(team.name)} 
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4">
+          <div className="flex items-center gap-3 w-full">
+            <div className={`h-12 w-12 sm:h-14 sm:w-14 rounded-xl bg-gradient-to-br ${getAvatarColor(team.name)} 
                           flex items-center justify-center shadow-lg`}>
-              <span className="text-white font-bold text-xl">
+              <span className="text-white font-bold text-lg sm:text-xl">
                 {team.name.charAt(0).toUpperCase()}
               </span>
             </div>
-            <div>
+            <div className="flex-1">
               {team.featured && (
                 <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 mb-1">
                   <FiStar className="h-4 w-4" />
@@ -48,7 +48,6 @@ export default function TeamCard({ team }) {
               </h3>
             </div>
           </div>
-          
           <span className="px-3 py-1 rounded-full text-xs font-semibold 
                          bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
             {team.category || 'Learning'}
@@ -113,7 +112,7 @@ export default function TeamCard({ team }) {
         )}
 
         {/* Footer */}
-        <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
           <button className="flex-1 px-4 py-2.5 rounded-lg 
                            bg-primary-600 hover:bg-primary-700
                            text-white font-medium
