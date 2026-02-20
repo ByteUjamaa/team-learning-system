@@ -47,4 +47,36 @@ Install dependencies
 ```sh
 pip install -r requirements.txt
 ```
+Create ```.env``` file
+```sh
+DEBUG=True
+SECRET_KEY=<YOUR-SECRET-KEY>
+
+# Database Settings
+DB_NAME=<DATABASE-NAME>
+DB_USER=<POSTGRES-USERNAME>
+DB_PASSWORD=<YOUR-PASSWORD>
+DB_HOST=localhost
+DB_PORT=5432
+
+# Email Configuration
+EMAIL_HOST_USER=<YOUR-EMAIL-ADDRESS>
+EMAIL_HOST_PASSWORD=<PASSWORD> # USE APP PASSWORD IF YOU ARE USING GMAIL
+```
+
+Create database tables and run the Django server
+```sh
+python manage.py migrate
+python manage.py runserver
+
+
+```Create ```.env``` file inside /Frontend/ directory and write:
+```sh
+VITE_SERVER_BASE_URL=http://127.0.0.1:8000/api/v1
+```
+And run the frontend - React
+```sh
+npm install
+npm run dev
+```
 
