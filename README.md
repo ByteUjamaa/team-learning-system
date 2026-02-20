@@ -56,7 +56,7 @@ SECRET_KEY=<YOUR-SECRET-KEY>
 DB_NAME=<DATABASE-NAME>
 DB_USER=<POSTGRES-USERNAME>
 DB_PASSWORD=<YOUR-PASSWORD>
-DB_HOST=localhost
+DB_HOST=db
 DB_PORT=5432
 
 # Email Configuration
@@ -72,7 +72,8 @@ python manage.py runserver
 
 ```Create ```.env``` file inside /Frontend/ directory and write:
 ```sh
-VITE_SERVER_BASE_URL=http://127.0.0.1:8000/
+on docker communicate using services and not localhost
+VITE_SERVER_BASE_URL=http://backend:8000/
 ```
 And run the frontend - React
 ```sh
@@ -184,4 +185,45 @@ services:
   # Data persists even if container stops or restarts
 volumes:
   postgres_data:
+```
+
+Make sure to create a copy of ```.env``` and name it as ```.env.docker```
+```sh
+SECRET_KEY=<YOUR-DJANGO-SECRETKEY>
+DEBUG=True
+
+# Database Settings
+DB_NAME=<YOUR_DOCKER-DB>
+DB_USER=postgres
+DB_PASSWORD=<PASSWORD>
+DB_HOST=db
+DB_PORT=5432
+
+
+EMAIL_HOST_USER=<YOUR-EMAIL-ADDRESS>
+EMAIL_HOST_PASSWORD=<YOUR-PASSWORD> # app password if you're using Gmail account
+
+# also create .env.production for your PostgreSQL production container, but remember the Postgres image expects POSTGRES_ prefix
+POSTGRES_DB=<YOUR_DOCKER_DB>
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=<YOUR_PASSWORD>
+
+#in big picture
+Postgres container initializes database using POSTGRES_*
+                ↓
+Database is created
+                ↓
+Django connects using DB_* variables
+```
+
+Your project is now Dockerized 
+
+See the docker container health:
+```sh
+docker compose ps
+```
+
+You can try creating superuser inside Docker container.
+```sh
+docker compose exec backend python manage.py createsuperuser
 ```
