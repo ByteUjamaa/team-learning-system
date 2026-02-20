@@ -72,11 +72,116 @@ python manage.py runserver
 
 ```Create ```.env``` file inside /Frontend/ directory and write:
 ```sh
-VITE_SERVER_BASE_URL=http://127.0.0.1:8000/api/v1
+VITE_SERVER_BASE_URL=http://127.0.0.1:8000/
 ```
 And run the frontend - React
 ```sh
 npm install
 npm run dev
 ```
+## Create Dockerfile for backend
+Create a new file "Dockerfile" inside /backend-drf/ folder
+```sh
+# Purpose: A Dockerfile is a step-by-step instruction file that tells Docker how to build and run our application.
+FROM python:3.10-slim
 
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+# gunicorn = production server, clickmart_main.wsgi:application = Django entry point, --bind 0.0.0.0:8000 = external traffic. Reminaing: tuning options
+# A worker is just one instance of your Django app running inside Gunicorn.
+CMD ["gunicorn", "team_system.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3" , "--timeout", "180"]
+```
+
+## Create Dockerfile for frontend
+Create a new file "Dockerfile" inside /Frontend/ folder
+```sh
+# Stage 1: Build
+FROM node:18 AS build
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+# Build arguments for environment variables
+ARG VITE_SERVER_BASE_URL
+
+# This line passes an environment variable into the Docker container so the React app knows the backend API URL.
+ENV VITE_SERVER_BASE_URL=$VITE_SERVER_BASE_URL
+
+RUN npm run build
+
+# Stage 2: Nginx, alpine means the lighter version of Nginx
+FROM nginx:alpine
+
+# Copy build output to Nginx html directory
+COPY --from=build /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+## On the root directory, create a file "docker-compose.yml"
+```sh
+services:
+  db:
+    image: postgres:16-alpine
+    env_file:
+      - .env.production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./Backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./Backend/.env.docker
+    depends_on:
+      - db
+    volumes:
+      - ./Backend/static:/app/static
+      - ./Backend/media:/app/media
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  frontend:
+    build:
+      context: ./Frontend
+      args:
+        VITE_SERVER_BASE_URL: "http://backend:8000/api/v1"
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+
+# This creates a named Docker volume to permanently store PostgreSQL data.
+# Without this:
+  # Database data is stored inside the container
+  # If container is deleted → data is lost
+# With this:
+  # Data is stored in a Docker-managed volume
+  # Data persists even if container stops or restarts
+volumes:
+  postgres_data:
+```
