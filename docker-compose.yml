@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:16-alpine
+    env_file:
+      - .env.production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./Backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./Backend/.env.docker
+    depends_on:
+      - db
+    volumes:
+      - ./Backend/static:/app/static
+      - ./Backend/media:/app/media
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  frontend:
+    build:
+      context: ./Frontend
+      args:
+        VITE_SERVER_BASE_URL: "http://localhost:8000/"
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+  # This creates a named Docker volume to permanently store PostgreSQL data.
+  # Without this:
+  # Database data is stored inside the container
+  # If container is deleted → data is lost
+  # With this:
+  # Data is stored in a Docker-managed volume
+  # Data persists even if container stops or restarts
+volumes:
+  postgres_data:
