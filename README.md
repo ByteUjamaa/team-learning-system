@@ -56,7 +56,7 @@ SECRET_KEY=<YOUR-SECRET-KEY>
 DB_NAME=<DATABASE-NAME>
 DB_USER=<POSTGRES-USERNAME>
 DB_PASSWORD=<YOUR-PASSWORD>
-DB_HOST=localhost
+DB_HOST=db
 DB_PORT=5432
 
 # Email Configuration
@@ -72,7 +72,8 @@ python manage.py runserver
 
 ```Create ```.env``` file inside /Frontend/ directory and write:
 ```sh
-VITE_SERVER_BASE_URL=http://127.0.0.1:8000/
+on docker communicate using services and not localhost
+VITE_SERVER_BASE_URL=http://backend:8000/
 ```
 And run the frontend - React
 ```sh
@@ -168,7 +169,7 @@ services:
     build:
       context: ./Frontend
       args:
-        VITE_SERVER_BASE_URL: "http://backend:8000/api/v1"
+        VITE_SERVER_BASE_URL: "http://backend:8000/"
     ports:
       - "5173:80"
     depends_on:
@@ -185,3 +186,99 @@ services:
 volumes:
   postgres_data:
 ```
+
+Make sure to create a copy of ```.env``` and name it as ```.env.docker```
+```sh
+SECRET_KEY=<YOUR-DJANGO-SECRETKEY>
+DEBUG=True
+
+# Database Settings
+DB_NAME=<YOUR_DOCKER-DB>
+DB_USER=postgres
+DB_PASSWORD=<PASSWORD>
+DB_HOST=db
+DB_PORT=5432
+
+
+EMAIL_HOST_USER=<YOUR-EMAIL-ADDRESS>
+EMAIL_HOST_PASSWORD=<YOUR-PASSWORD> # app password if you're using Gmail account
+
+# also create .env.production for your PostgreSQL production container, but remember the Postgres image expects POSTGRES_ prefix
+POSTGRES_DB=<YOUR_DOCKER_DB>
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=<YOUR_PASSWORD>
+
+#in big picture
+Postgres container initializes database using POSTGRES_*
+                ↓
+Database is created
+                ↓
+Django connects using DB_* variables
+```
+
+Your project is now Dockerized 
+
+See the docker container health:
+```sh
+docker compose ps
+```
+
+You can try creating superuser inside Docker container.
+```sh
+docker compose exec backend python manage.py createsuperuser
+```
+
+
+create a VM  from any cloud provider 
+
+ Connect via SSH
+```
+chmod 400 private key
+ssh -i private key opc@<PUBLIC_IP>
+Update system first:
+sudo apt update && sudo apt upgrade -y
+
+
+3. Install Docker & Docker Compose
+Bash# Install Docker
+curl -fsSL https://get.docker.com | sudo sh
+
+# Docker Compose plugin
+sudo apt install -y docker-compose-plugin
+
+# Add user to docker group
+sudo usermod -aG docker $USER
+
+# Log out & log back in
+exit
+Reconnect after logout:
+ssh -i private key opc@<PUBLIC_IP>
+
+4. Clone the Project
+sudo mkdir devroot
+sudo chown $USER:$USER  devroot
+cd devroot
+git clone git@github.com:ByteUjamaa/team-learning-system.git .
+
+check if you see all the file
+```
+
+5. Configure Environment Variables
+```
+Frontend (in docker-compose.yml)
+YAMLservices:
+  frontend:
+    environment:
+      - VITE_SERVER_BASE_URL=http://<PUBLIC_IP>:8000/api/v1
+Backend environment files
+Create/edit these files:
+Bashnano backend/.env.production
+nano backend/.env.docker
+Example content for .env.docker / .env.production:
+textDEBUG=False
+ALLOWED_HOSTS=<PUBLIC_IP>,localhost,127.0.0.1
+SECRET_KEY=your-super-long-random-secret-key-here
+# ... database credentials, stripe keys, etc.
+```
+
+
