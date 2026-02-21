@@ -128,6 +128,7 @@ DATABASES = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "http://130.61.117.245:5173"
 ]
 
 # Password validation
