@@ -258,6 +258,27 @@ ssh -i private key opc@<PUBLIC_IP>
 sudo mkdir devroot
 sudo chown $USER:$USER  devroot
 cd devroot
-git clone https://github.com/YOUR-USERNAME/YOUR-REPO.git .
+git clone git@github.com:ByteUjamaa/team-learning-system.git .
+
+check if you see all the file
+```
+
+5. Configure Environment Variables
+```
+Frontend (in docker-compose.yml)
+YAMLservices:
+  frontend:
+    environment:
+      - VITE_SERVER_BASE_URL=http://<PUBLIC_IP>:8000/api/v1
+Backend environment files
+Create/edit these files:
+Bashnano backend/.env.production
+nano backend/.env.docker
+Example content for .env.docker / .env.production:
+textDEBUG=False
+ALLOWED_HOSTS=<PUBLIC_IP>,localhost,127.0.0.1
+SECRET_KEY=your-super-long-random-secret-key-here
+# ... database credentials, stripe keys, etc.
+```
 
 
