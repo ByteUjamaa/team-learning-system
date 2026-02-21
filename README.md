@@ -280,5 +280,79 @@ ALLOWED_HOSTS=<PUBLIC_IP>,localhost,127.0.0.1
 SECRET_KEY=your-super-long-random-secret-key-here
 # ... database credentials, stripe keys, etc.
 ```
+6. deal now with the firewalls
+```
+
+Go to your instance → Primary VNIC → click Subnet
+Open Default Security List (or assigned one)
+Add Ingress Rules:
+TCP | Port 22 | 0.0.0.0/0 (usually already exists)
+TCP | Port 8000 | 0.0.0.0/0
+TCP | Port 5173 | 0.0.0.0/0
+
+
+B. Instance Firewall (iptables)
+for the oracle server if you use linux image
+make sure you update and open also the linux firewalls   ufw for port 22 80 443
+
+# Make rules persistent
+sudo apt update
+sudo apt install -y iptables-persistent
+
+# During installation → choose YES to save current IPv4 rules
+# Or later:
+sudo netfilter-persistent save
+Verify:
+Bashsudo iptables -L -v -n
+```
+test  and make some changes 
+```
+7. Build & Start Containers
+Bashdocker compose up --build -d
+docker compose ps
+8. Test Your Deployment
+
+Backend API → http://<PUBLIC_IP>:8000/
+Frontend → http://<PUBLIC_IP>:5173/
+Django Admin (if enabled) → http://<PUBLIC_IP>:8000/admin/
+
+9. Important Django & CORS Settings
+In your Django settings.py:
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+
+
+
+    "CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://130.61.117.245:5173"
+]
+
+Push to GitHub:
+```sh
+git add .
+git commit -m "Allowed host & environments added"
+git push origin main
+```
+
+This will push the changes to GitHub.
+
+###  Goal - Whenever I push code to GitHub, my oracle server should automatically update.
+
+But first...
+
+### Manually pull the code from GitHub to oracle server .
+While logged-in to oracle server :
+```sh
+git pull origin main
+```
+
+Rebuild containers:
+```sh
+docker compose down -v
+docker compose up --build -d
+```
+
+## Rule Before Automation
+❗Never automate something you haven’t done manually.
 
 
