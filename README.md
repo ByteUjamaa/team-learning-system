@@ -169,7 +169,7 @@ services:
     build:
       context: ./Frontend
       args:
-        VITE_SERVER_BASE_URL: "http://backend:8000/api/v1"
+        VITE_SERVER_BASE_URL: "http://backend:8000/"
     ports:
       - "5173:80"
     depends_on:
@@ -227,3 +227,37 @@ You can try creating superuser inside Docker container.
 ```sh
 docker compose exec backend python manage.py createsuperuser
 ```
+
+
+create a VM  from any cloud provider 
+
+ Connect via SSH
+```
+chmod 400 private key
+ssh -i private key opc@<PUBLIC_IP>
+Update system first:
+sudo apt update && sudo apt upgrade -y
+
+
+3. Install Docker & Docker Compose
+Bash# Install Docker
+curl -fsSL https://get.docker.com | sudo sh
+
+# Docker Compose plugin
+sudo apt install -y docker-compose-plugin
+
+# Add user to docker group
+sudo usermod -aG docker $USER
+
+# Log out & log back in
+exit
+Reconnect after logout:
+ssh -i private key opc@<PUBLIC_IP>
+
+4. Clone the Project
+sudo mkdir devroot
+sudo chown $USER:$USER  devroot
+cd devroot
+git clone https://github.com/YOUR-USERNAME/YOUR-REPO.git .
+
+
