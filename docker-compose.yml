@@ -27,9 +27,9 @@ services:
     build:
       context: ./Frontend
       args:
-        #  after adding nginx as a reverse proxy, the frontend will make API calls to nginx instead of directly to the backend
+        #  after add nginx as reverse proxy, we need to change the base URL to point to nginx instead of backend directly
         # VITE_SERVER_BASE_URL: "http://localhost:8000/"
-        VITE_SERVER_BASE_URL: ""
+        VITE_SERVER_BASE_URL: "/api/"
     ports:
       - "5173:80"
     depends_on:

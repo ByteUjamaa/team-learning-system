@@ -46,6 +46,6 @@ Thumbs.db
 Backend/media/profile_pictures/
 
 # docker
-docker-compose.yml
-.env.production
-.env.docker
+# docker-compose.yml
+# .env.production
+# .env.docker

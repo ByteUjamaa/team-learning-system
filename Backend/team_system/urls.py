@@ -27,11 +27,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # Swagger/Redoc
-    re_path(r'^api/swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json-api'),
-    path('api/swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui-api'),
-    path('api/redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc-api'),
-
+  
     # Specific API v1 routes (must come BEFORE the generic 'api/' include)
     path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

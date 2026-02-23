@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG")
 
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1','130.61.117.245']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1','	130.61.230.130']
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -128,7 +128,7 @@ DATABASES = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "http://130.61.117.245:5173"
+    "http://130.61.230.245:5173"
 ]
 
 # Password validation

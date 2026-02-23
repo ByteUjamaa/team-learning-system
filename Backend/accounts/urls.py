@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 from .views import RegisterView, LoginView, LogoutView, ChangePasswordView, CurrentUserProfileView
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView # type: ignore
 
 urlpatterns = [
     # Authentication endpoints
