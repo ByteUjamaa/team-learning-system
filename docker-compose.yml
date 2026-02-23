@@ -8,8 +8,9 @@ services:
 
   backend:
     build: ./Backend
-    ports:
-      - "8000:8000"
+    # we add nginx as a reverse proxy, so we don't need to expose the backend port directly
+    # ports:
+    #   - "8000:8000"
     env_file:
       - ./Backend/.env.docker
     depends_on:
@@ -26,7 +27,9 @@ services:
     build:
       context: ./Frontend
       args:
-        VITE_SERVER_BASE_URL: "http://localhost:8000/"
+        #  after adding nginx as a reverse proxy, the frontend will make API calls to nginx instead of directly to the backend
+        # VITE_SERVER_BASE_URL: "http://localhost:8000/"
+        VITE_SERVER_BASE_URL: ""
     ports:
       - "5173:80"
     depends_on:
@@ -38,5 +41,15 @@ services:
   # With this:
   # Data is stored in a Docker-managed volume
   # Data persists even if container stops or restarts
+  nginx:
+   image: nginx:alpine
+   ports:
+    - "80:80"
+   volumes:
+    - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+   depends_on:
+    - frontend
+    - backend
+
 volumes:
   postgres_data:
