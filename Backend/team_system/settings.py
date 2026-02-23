@@ -31,7 +31,14 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG")
 
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1','130.61.230.130', 'backend']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '130.61.230.130',
+    'tlms.live',
+    'www.tlms.live',
+    'backend',
+]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -131,6 +138,19 @@ CORS_ALLOWED_ORIGINS = [
     "http://130.61.230.245:5173",
     "http://130.61.230.130",
     "https://130.61.230.130",
+    "http://tlms.live",
+    "https://tlms.live",
+    "http://www.tlms.live",
+    "https://www.tlms.live",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://130.61.230.130",
+    "https://130.61.230.130",
+    "http://tlms.live",
+    "https://tlms.live",
+    "http://www.tlms.live",
+    "https://www.tlms.live",
 ]
 
 # Password validation
