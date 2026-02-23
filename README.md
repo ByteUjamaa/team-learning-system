@@ -435,3 +435,86 @@ Make a small frontend change and confirm auto-deploy.
 
 ✅ Auto deploy successful.
 
+
+
+## Nginx Config
+From local project, create file:
+```sh
+nginx/default.conf
+```
+```
+server {
+    listen 80;
+
+    # Frontend (React)
+    location / {
+        proxy_pass http://frontend:80;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # Backend (Django)
+    location /api/ {
+        proxy_pass http://backend:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # Django admin & static
+    location /admin/ {
+        proxy_pass http://backend:8000;
+    }
+
+    location /static/ {
+        proxy_pass http://backend:8000;
+    }
+
+    location /media/ {
+        proxy_pass http://backend:8000;
+    }
+}
+```
+### Docker Compose Changes
+- Add nginx service
+- Remove ports from backend & frontend
+- Update frontend API URL: ``` VITE_SERVER_BASE_URL="/api/v1" ```
+
+```
+nginx:
+  image: nginx:alpine
+  ports:
+    - "80:80"
+  volumes:
+    - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+  depends_on:
+    - frontend
+    - backend
+```
+
+Push changes:
+```sh
+git add .
+git commit -m "Nginx Setup"
+git push origin main
+```
+
+## Update Firewall (Production)
+Keep:
+- ```22``` (SSH)
+- ```80``` (HTTP)
+
+Remove:
+- ```8000``` (Backend)
+- ```5173``` (Frontend)
+
+## Final Test
+http://<ORACLE_IP>/
+
+If you get error: Add ```backend``` to allowed host in oracle server manually.
+
+Restart docker:
+```sh
+docker compose down -v
+docker compose up --build -d
+```
+
