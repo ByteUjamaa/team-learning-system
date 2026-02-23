@@ -355,4 +355,83 @@ docker compose up --build -d
 ## Rule Before Automation
 ❗Never automate something you haven’t done manually.
 
+## Setup CI/CD (GitHub Actions)
+In local project:
+
+Create a new file:  
+
+```sh
+.github/workflows/automate.yml
+```
+```sh
+name: Auto Deploy to Oracle Cloud Server
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_SSH_KEY }}
+          script: |
+            cd /devroot
+            git pull origin master
+            docker compose up --build -d
+
+```
+
+Add GitHub Secrets:
+GitHub → Your Repository → Settings → Secrets and variables → Actions → New repository secret .
+
+```
+Required GitHub Secrets
+
+The following secrets must be configured in the GitHub repository to allow secure deployment:
+
+Secret Name	Description
+ORACLE_HOST	Public IP address of the Oracle Cloud VM
+ORACLE_USER	SSH username (usually ubuntu)
+ORACLE_SSH_KEY	Private SSH key for connecting to the Oracle server
+
+Important Notes
+
+     The SSH key must be the full private key content, not the filename
+
+     Root login is disabled on Oracle Cloud — always use the ubuntu user
+```
+
+## Push automation file:
+```sh
+git add .
+git commit -m "CI/CD Setup"
+git push origin main
+```
+
+Check GitHub Actions tab.
+```sh
+Deployment Process
+
+On every push to the master branch, GitHub Actions will automatically:
+
+Connect to the Oracle Cloud server via SSH
+
+Navigate to the application directory
+
+Pull the latest code from the GitHub repository
+
+Build and restart the Docker containers using Docker Compose
+```
+
+Make a small frontend change and confirm auto-deploy.
+
+✅ Auto deploy successful.
 
