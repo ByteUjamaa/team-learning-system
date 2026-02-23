@@ -322,16 +322,16 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 
 
-    "CORS_ALLOWED_ORIGINS = [
+ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "http://130.61.117.245:5173"
+    "http://130.61.230.245:5173"
 ]
 
 Push to GitHub:
 ```sh
 git add .
 git commit -m "Allowed host & environments added"
-git push origin main
+git push origin master
 ```
 
 This will push the changes to GitHub.
