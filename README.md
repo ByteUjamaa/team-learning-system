@@ -517,4 +517,101 @@ Restart docker:
 docker compose down -v
 docker compose up --build -d
 ```
+NOTE remember to add CSRF_TRUSTED_ORIGINS  in the setting 
 
+## Gunicorn Setup (Production WSGI Server)
+
+### 1. Add Gunicorn Dependency
+Add `gunicorn` inside `requirements.txt`:
+
+
+#### Update Backend Dockerfile
+
+No special change is required other than ensuring requirements.txt is installed.
+Gunicorn will be installed automatically via dependencies.
+
+#### Update docker-compose.yml
+Replace the Django run command with Gunicorn:
+```
+command: >
+  gunicorn clickmart_main.wsgi:application --bind 0.0.0.0:8000 --workers 3
+```
+- team_system.wsgi:application → Django entry point
+- --bind 0.0.0.0:8000 → Listen on all interfaces
+- --workers 3 → Run 3 Python worker processes
+
+```
+git add .
+git commit -m "Deploy Gunicorn"
+git push origin main
+```
+
+#### Important Note
+✅ We did not change the application code.
+
+✅ We only changed how Python code is executed in production.
+
+### Verify Gunicorn Is Running
+SSH into the oracle server:
+```
+ssh root@<ORACLE-IP>
+cd devroot
+cd Backend
+docker compose logs backend
+
+
+output will be  like
+backend-1  | Not Found: /static/admin/css/base.css
+backend-1  | Not Found: /static/admin/css/nav_sidebar.css
+backend-1  | Not Found: /static/admin/css/dark_mode.css
+backend-1  | Not Found: /static/admin/css/responsive.css
+backend-1  | Not Found: /static/admin/js/theme.js
+backend-1  | Not Found: /static/admin/css/dashboard.css
+backend-1  | Not Found: /static/admin/js/nav_sidebar.js
+backend-1  | Not Found: /static/admin/css/responsive.css
+backend-1  | Not Found: /static/admin/css/nav_sidebar.css
+backend-1  | Not Found: /static/admin/css/dashboard.css
+
+POINT TO NOTE Gunicorn DOEST NOT COLLECT STATICS FILE AS runserver  ADD SETTING ON THE Nginx SO AS TO
+COLLECT THE STATIC FILE 
+```
+
+## Purchase a Domain
+
+Purchase a domain from any provider (GoDaddy, Namecheap, etc.).
+
+Connect Domain to oracle server(DNS)
+Add the following A records in your domain DNS:
+| Type | Host | Value              |
+| ---- | ---- | ------------------ |
+| A    | @    | `<YOUR_ORACLE_SERVER_IP>` |
+| A    | www  | `<YOUR_ORACLE_SERVER_IP>` |
+
+Wait for DNS propagation (usually a few minutes to a few hours).
+
+```
+Nginx Domain & SSL Notice
+
+Important: After adding your domain name, do NOT modify default.conf locally.
+
+All Nginx configuration changes, including SSL setup, must be done on the server.
+
+Why
+
+When you push code to GitHub and redeploy, local changes to default.conf will be overwritten.
+
+SSL certificates and settings are server-specific. Any local modifications will be lost.
+
+To apply SSL after updates, you must re-run the SSL setup command on the server.
+
+Recommendation
+
+Add your domain and configure SSL directly on the server.
+
+Keep default.conf in GitHub as-is.
+
+Whenever you make server-side changes to SSL or Nginx, do not push those changes to GitHub.
+so add nginx in  the .gitignore
+
+This ensures your SSL stays valid and your domain configuration is not accidentally reset.
+```
