@@ -29,7 +29,7 @@ services:
       args:
         #  after add nginx as reverse proxy, we need to change the base URL to point to nginx instead of backend directly
         # VITE_SERVER_BASE_URL: "http://localhost:8000/"
-        VITE_SERVER_BASE_URL: "/api/"
+        VITE_SERVER_BASE_URL: ""
     # ports:
     #   - "5173:80"
     depends_on:
