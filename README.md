@@ -510,7 +510,7 @@ Remove:
 ## Final Test
 http://<ORACLE_IP>/
 
-If you get error: Add ```backend``` to allowed host in otracle server manually.
+If you get error: Add ```backend``` to allowed host in oracle server manually.
 
 Restart docker:
 ```sh
