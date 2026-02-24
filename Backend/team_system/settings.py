@@ -137,7 +137,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://130.61.230.245:5173",
     "http://130.61.230.130",
-    # "https://130.61.230.130",
+    "https://130.61.230.130",
     "http://tlms.live",
     "https://tlms.live",
     "http://www.tlms.live",
@@ -146,7 +146,7 @@ CORS_ALLOWED_ORIGINS = [
 
 CSRF_TRUSTED_ORIGINS = [
     "http://130.61.230.130",
-    # "https://130.61.230.130",
+    "https://130.61.230.130",
     "http://tlms.live",
     "https://tlms.live",
     "http://www.tlms.live",
