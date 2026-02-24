@@ -175,7 +175,7 @@ export default function AuthForm() {
               <label htmlFor="remember" className={`ml-2 text-sm ${
                 theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
               }`}>
-                Remember 
+                Remember and star boy 
               </label>
             </div>
             <button
