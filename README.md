@@ -615,3 +615,225 @@ so add nginx in  the .gitignore
 
 This ensures your SSL stays valid and your domain configuration is not accidentally reset.
 ```
+
+
+### Nginx Config as Server-Managed File
+Certbot modifies the Nginx config directly on the server,
+so we must remove it from Git tracking.
+```
+git rm --cached nginx/default.conf
+```
+- Removes the file from Git
+
+Add to .gitignore:
+```
+nginx/default.conf
+```
+
+#### Commit and Push
+```
+git add .
+git commit -m "Make nginx config server-managed"
+git push origin main
+```
+
+#### SSH into oracle server
+- Create `nginx/default.conf` file
+- Add domain to this file:
+```
+server_name example.com www.example.com;
+```
+Restart nginx:
+```
+docker compose restart nginx
+```
+#### Update Django ALLOWED_HOSTS
+Add your domain into `.env.docker`
+
+Restart backend:
+```
+docker compose restart backend
+```
+### Test Domain (HTTP only
+http://example.com
+
+```
+Serving Django with Gunicorn and Nginx
+Issue
+
+After switching to Gunicorn to serve Django in production, the app works but static files (CSS, JS, images) are not loading.
+
+Gunicorn only serves dynamic content and does not handle static files.
+
+Solution
+
+Use Nginx as a reverse proxy to handle static files and forward dynamic requests to Gunicorn.
+
+Nginx serves static content directly, improving performance and making the app fully accessible via the browser.
+
+Docker Setup
+nginx:
+  image: nginx:alpine
+  ports:
+    - "80:80"
+  volumes:
+    - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+     - ../Backend/static:/static
+  depends_on:
+    - frontend
+    - backend
+
+Nginx Config Example (default.conf)
+server {
+    listen 80;
+    server_name  server_name tlms.live www.tlms.live;
+
+    location /static/ {
+        alias /static/;   # Serve Django static files
+    }
+
+    location / {
+        proxy_pass http://backend:8000;  # Forward dynamic requests to Gunicorn
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+## Install SSL (Let’s Encrypt)
+
+In the server root directory, create folders:
+```
+mkdir -p certbot/www
+mkdir -p certbot/conf
+```
+### Update docker-compose.yml (Nginx service)
+Edit docker-compose.yml locally (nginx service):
+```
+volumes:
+  - ./certbot/www:/var/www/certbot
+  - ./certbot/conf:/etc/letsencrypt
+```
+Push to main branch.
+
+### Update nginx/default.conf
+Edit `nginx/default.conf`
+
+Add this block:
+```
+location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+```
+
+Restart Nginx container:
+```
+docker compose restart nginx
+```
+Make sure the site with HTTP still works at this point:
+
+### Install Certbot
+```
+apt update
+apt install certbot -y
+
+
+### Get SSL Certificate (WEBROOT METHOD)
+```
+sudo certbot certonly \
+  --webroot \
+  -w /home/ubuntu/devroot/certbot/www \
+  -d tlms.live \
+  -d www.tlms.live
+```
+
+### Enable HTTPS in Nginx
+Edit `nginx/default.conf` again:
+
+Replace with FINAL CONFIG:
+
+```
+server {
+    listen 80;
+    server_name tlms.live www.tlms.live;
+
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name tlms.live www.tlms.live;
+
+    # SSL certificate
+    ssl_certificate /etc/letsencrypt/live/tlms.live/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/tlms.live/privkey.pem;
+
+    # Frontend
+    location / {
+        proxy_pass http://frontend:80;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # API
+    location /api/ {
+        proxy_pass http://backend:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # Admin
+    location /admin/ {
+        proxy_pass http://backend:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # Static files (if served by ngnix)
+    location /static/ {
+        alias /static/;
+    }
+
+    location /media/ {
+        proxy_pass http://backend:8000;
+    }
+}
+
+docker compose restart nginx
+
+then check for the docker ps if ypu will see the ngnix
+
+
+in case you geting error on the nginx container
+
+make sure your nginx service in the docker compose look like this
+
+nginx:
+   image: nginx:alpine
+   ports:
+     - "80:80"
+   volumes:
+     - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+     - ./backend-drf/static:/static
+     - ./certbot/www:/var/www/certbot
+     - /etc/letsencrypt/:/etc/letsencrypt:ro                  
+   depends_on:
+     - frontend
+     - backend
+
+
+```
+
+push changes to the github
+
+
+
+
+#### Restart Nginx
+docker compose restart nginx
+
+remember to expose the port  - "443:443"     on the ngnix service in the docker compose  
+
+#### Test HTTPS 
+https://example.com
+
+Congratulations  You did it.
