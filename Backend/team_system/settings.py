@@ -192,6 +192,13 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Tells Django it is running behind an HTTPS proxy 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+
+# to allow django to handle file uploads up to 10MB (default is 2.5MB)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
