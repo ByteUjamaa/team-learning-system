@@ -158,7 +158,7 @@ services:
     depends_on:
       - db
     volumes:
-      - ./Backend/static:/app/static
+      - ./Backend/staticfiles:/app/staticfiles
       - ./Backend/media:/app/media
     command: >
       sh -c "python manage.py collectstatic --noinput &&
@@ -534,7 +534,7 @@ Gunicorn will be installed automatically via dependencies.
 Replace the Django run command with Gunicorn:
 ```
 command: >
-  gunicorn clickmart_main.wsgi:application --bind 0.0.0.0:8000 --workers 3
+  gunicorn team_system.wsgi:application --bind 0.0.0.0:8000 --workers 3
 ```
 - team_system.wsgi:application → Django entry point
 - --bind 0.0.0.0:8000 → Listen on all interfaces
@@ -678,7 +678,7 @@ nginx:
     - "80:80"
   volumes:
     - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-     - ../Backend/static:/static
+      - ./Backend/staticfiles:/static
   depends_on:
     - frontend
     - backend
@@ -837,3 +837,48 @@ remember to expose the port  - "443:443"     on the ngnix service in the docker 
 https://example.com
 
 Congratulations  You did it.
+
+
+one more move 
+solve the  refresh problem in the r frontend
+```
+Create file nginx.conf next to your Dockerfile in Frontend file :
+
+add
+
+server {
+    listen 80;
+    server_name localhost;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Optional: better error pages, caching, etc.
+    # error_page 404 /index.html;
+}
+
+
+Then update your Dockerfile:
+
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+ARG VITE_SERVER_BASE_URL
+ENV VITE_SERVER_BASE_URL=$VITE_SERVER_BASE_URL
+RUN npm run build
+
+FROM nginx:alpine
+# Copy custom config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy build output
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+
