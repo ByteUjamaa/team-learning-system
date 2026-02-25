@@ -21,7 +21,7 @@ services:
     command: >
       sh -c "python manage.py collectstatic --noinput &&
              python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+             gunicorn team_system.wsgi:application --bind 0.0.0.0:8000 --workers 3"
 
   frontend:
     build:
