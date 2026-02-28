@@ -383,7 +383,7 @@ jobs:
           username: ${{ secrets.ORACLE_USER }}
           key: ${{ secrets.ORACLE_SSH_KEY }}
           script: |
-            cd /devroot
+            cd devroot
             git pull origin master
             docker compose up --build -d
 
