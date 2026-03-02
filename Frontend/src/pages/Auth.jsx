@@ -211,6 +211,9 @@ export default function AuthForm() {
               'Sign In'
             )}
           </button>
+          <div>
+            <p>Test</p>
+          </div>
         </form>
       </div>
     </div>
